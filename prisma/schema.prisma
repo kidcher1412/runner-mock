@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model Project {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  file   String
+  useDB  Boolean @default(false)
+  dbFile String?
+  mappings Mapping[]
+}
+
+model Mapping {
+  id        Int     @id @default(autoincrement())
+  endpoint  String
+  method    String
+  sql       String
+  jsonPath  String
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@unique([endpoint, method])
+}
