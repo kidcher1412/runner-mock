@@ -1,4 +1,5 @@
 "use client";
+import { httpStatusCodes } from "@/statics/data/httpStatusCodes";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 
@@ -19,7 +20,15 @@ type Processor = {
     created_at?: string;
 };
 
-
+type Condition = {
+    openParen: boolean;
+    closeParen: boolean;
+    location: string;
+    field: string;
+    comparison: string;
+    expectedValue: string;
+    logicBefore?: "AND" | "OR"; // nối với điều kiện trước
+};
 export default function MockProcessorPanel({
     project,
     endpoints,
@@ -52,15 +61,27 @@ export default function MockProcessorPanel({
     const [expectMode, setExpectMode] = useState(false);
     const [loadingMode, setLoadingMode] = useState(false);
 
-
+    const [nextLogic, setNextLogic] = useState<"AND" | "OR">("AND");
     const [expectForm, setExpectForm] = useState({
         name: "",
-        location: "",
-        field: "",
-        comparison: "",
-        expectedValue: "",
-        enabled: true,
+        logic: "AND", // mặc định là AND giữa các điều kiện
+        contentType: "application/json", // mới
+        mockResponse: "",                // mới
+        mockResponseStatus: "200",                // mới
+        conditions: [
+            {
+                location: "",
+                field: "",
+                comparison: "",
+                expectedValue: "",
+                enabled: true,
+                openParen: false, // có mở ngoặc trước điều kiện này không
+                closeParen: false, // có đóng ngoặc sau điều kiện này không
+                logicBefore: "AND", // logic giữa các điều kiện
+            },
+        ],
     });
+
 
     const loadProcessors = async (ep: EndpointOption) => {
         const res = await fetch(
@@ -107,8 +128,60 @@ export default function MockProcessorPanel({
     };
 
     const addProcessor = async () => {
-        if (!selectedEndpoint || !newCode.trim()) return;
-        await fetch(`/api/scripts/process`, {
+    const apiUrl =
+        activeTab === "expectation"
+            ? "/api/scripts/expectation"
+            : "/api/scripts/process";
+
+    // Trường hợp không chọn endpoint
+    if (!selectedEndpoint) {
+        alert("Thiếu thông tin endpoint!");
+        return;
+    }
+
+    // Nếu là expectation
+    if (activeTab === "expectation") {
+        if (
+            !expectForm.name.trim() ||
+            !expectForm.conditions?.length
+        ) {
+            alert("Thiếu tên hoặc điều kiện expectation!");
+            console.log(expectForm);
+            return;
+        }
+
+        await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                project,
+                endpoint: selectedEndpoint.path,
+                method: selectedEndpoint.method,
+                type: activeTab,
+                ...expectForm,
+            }),
+        });
+
+        // Reset form expectation sau khi thêm
+        setExpectForm({
+            name: "",
+            logic: "AND",
+            conditions: [],
+            contentType: "application/json",
+            mockResponse: "",
+            mockResponseStatus: "200",
+        });
+    }
+
+    // Nếu là processor thông thường
+    else {
+        if (!newCode.trim()) {
+            alert("Thiếu nội dung code!");
+            console.log(expectForm);
+            return;
+        }
+
+        await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -119,9 +192,15 @@ export default function MockProcessorPanel({
                 code: newCode,
             }),
         });
+
+        // Reset code sau khi thêm
         setNewCode("");
-        loadProcessors(selectedEndpoint);
-    };
+    }
+
+    // Reload lại danh sách sau khi thêm
+    loadProcessors(selectedEndpoint);
+};
+
 
     const openModal = (p: Processor) => {
         setSelectedProcessor(p);
@@ -131,7 +210,7 @@ export default function MockProcessorPanel({
 
     const deleteProcessor = async (id: number) => {
         if (!confirm("Bạn có chắc muốn xóa mục này?")) return;
-
+        if (!project || !id) return alert("Thiếu thông tin project hoặc endpoint!");
         const apiUrl =
             activeTab === "expectation"
                 ? "/api/scripts/expectation"
@@ -140,7 +219,7 @@ export default function MockProcessorPanel({
         await fetch(apiUrl, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id }),
+            body: JSON.stringify({ id,project:project }),
         });
 
         setShowModal(false);
@@ -265,40 +344,53 @@ export default function MockProcessorPanel({
 
 
 
-    const addExpectation = async () => {
-        if (!selectedEndpoint) return;
-        const { name, location, field, comparison, expectedValue, enabled } = expectForm;
-        if (!name || !location || !field || !comparison) {
-            alert("Vui lòng nhập đầy đủ thông tin expectation");
-            return;
-        }
-
-        await fetch(`/api/scripts/expectation`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                project,
-                endpoint: selectedEndpoint.path,
-                method: selectedEndpoint.method,
-                name,
-                location,
-                field,
-                comparison,
-                expectedValue,
-                enabled,
-            }),
-        });
-
-        setExpectForm({
-            name: "",
-            location: "",
-            field: "",
-            comparison: "",
-            expectedValue: "",
-            enabled: true,
-        });
-        loadProcessors(selectedEndpoint);
+    // ✅ Khi thêm điều kiện mới
+    const addCondition = () => {
+        setExpectForm((prev) => ({
+            ...prev,
+            conditions: [
+                ...prev.conditions,
+                {
+                    location: "",
+                    field: "",
+                    comparison: "",
+                    expectedValue: "",
+                    enabled: true,
+                    openParen: false,
+                    closeParen: false,
+                    logicBefore: nextLogic, // điều kiện mới nối bằng logic hiện tại
+                },
+            ],
+        }));
     };
+
+    const updateCondition = (index: number, key: string, value: any) => {
+        const newConditions = [...expectForm.conditions];
+        (newConditions[index] as any)[key] = value;
+        setExpectForm({ ...expectForm, conditions: newConditions });
+    };
+
+    const removeCondition = (index: number) => {
+        setExpectForm((prev) => ({
+            ...prev,
+            conditions: prev.conditions.filter((_, i) => i !== index),
+        }));
+    };
+
+    const renderPreview = () => {
+        return expectForm.conditions
+            .map((cond, i) => {
+                if (!cond.location || !cond.field) return "";
+                const logic = cond.logicBefore ? `${cond.logicBefore} ` : ""; // logic của điều kiện hiện tại
+                const expr = `${cond.openParen ? "(" : ""}${cond.location}.${cond.field} ${cond.comparison
+                    } ${cond.expectedValue}${cond.closeParen ? ")" : ""}`;
+                return `${logic}${expr}`;
+            })
+            .filter(Boolean)
+            .join(" ");
+    };
+
+
 
     return (
         <div className="border rounded p-4 bg-white flex flex-col overflow-y-auto">
@@ -376,64 +468,203 @@ export default function MockProcessorPanel({
                             </button>
                         </>
                     ) : (
-                        <div className="border rounded p-3 mb-3 bg-gray-50 text-xs">
-                            <h3 className="font-semibold mb-2">Tạo Expectation</h3>
-                            <div className="grid grid-cols-2 gap-2 mb-2">
-                                <input
-                                    placeholder="Tên Expectation"
-                                    value={expectForm.name}
-                                    onChange={(e) => setExpectForm({ ...expectForm, name: e.target.value })}
-                                    className="border p-1 rounded"
-                                />
-                                <select
-                                    value={expectForm.location}
-                                    onChange={(e) => setExpectForm({ ...expectForm, location: e.target.value })}
-                                    className="border p-1 rounded"
+                        <div className="border rounded p-3 bg-gray-50 text-xs">
+                            <h3 className="font-semibold mb-2">🧩 Tên Expectation</h3>
+                            <input placeholder="Tên Expectation" value={expectForm.name} onChange={(e) => setExpectForm({ ...expectForm, name: e.target.value })} className="border p-1 rounded" />
+
+                            <h3 className="font-semibold mb-2">🧩 Điều kiện kiểm tra</h3>
+
+                            {expectForm.conditions.map((cond, i) => (
+                                <div key={i} className="border rounded p-2 mb-2 bg-white grid grid-cols-6 gap-2 items-center">
+                                    {/* Dấu ngoặc */}
+                                    <div className="flex flex-col items-center">
+                                        <label className="text-[10px]">Mở (</label>
+                                        <input
+                                            type="checkbox"
+                                            checked={cond.openParen}
+                                            onChange={(e) => updateCondition(i, "openParen", e.target.checked)}
+                                        />
+                                        <label className="text-[10px]">Đóng )</label>
+                                        <input
+                                            type="checkbox"
+                                            checked={cond.closeParen}
+                                            onChange={(e) => updateCondition(i, "closeParen", e.target.checked)}
+                                        />
+                                    </div>
+
+                                    {/* Vị trí */}
+                                    <select
+                                        value={cond.location}
+                                        onChange={(e) => updateCondition(i, "location", e.target.value)}
+                                        className="border p-1 rounded"
+                                    >
+                                        <option value="">-- Vị trí --</option>
+                                        <option value="headers">Headers</option>
+                                        <option value="params">Params</option>
+                                        <option value="body">Body</option>
+                                    </select>
+
+                                    {/* Trường */}
+                                    <input
+                                        placeholder="Field"
+                                        value={cond.field}
+                                        onChange={(e) => updateCondition(i, "field", e.target.value)}
+                                        className="border p-1 rounded"
+                                    />
+
+                                    {/* So sánh */}
+                                    <select
+                                        value={cond.comparison}
+                                        onChange={(e) => updateCondition(i, "comparison", e.target.value)}
+                                        className="border p-1 rounded"
+                                    >
+                                        <option value="">-- So sánh --</option>
+                                        <option value="equals">=</option>
+                                        <option value="not_equals">≠</option>
+                                        <option value="contains">contains</option>
+                                        <option value="regex">regex</option>
+                                        <option value="exists">exists</option>
+                                    </select>
+
+                                    {/* Giá trị mong đợi */}
+                                    <input
+                                        placeholder="Giá trị"
+                                        value={cond.expectedValue}
+                                        onChange={(e) => updateCondition(i, "expectedValue", e.target.value)}
+                                        className="border p-1 rounded"
+                                    />
+
+                                    {/* Nút xóa */}
+                                    <button
+                                        onClick={() => removeCondition(i)}
+                                        className="bg-red-500 text-white text-xs px-2 py-1 rounded"
+                                    >
+                                        ✖
+                                    </button>
+                                </div>
+                            ))}
+
+                            <div className="flex items-center gap-2 mb-2">
+                                <button
+                                    onClick={addCondition}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded"
                                 >
-                                    <option value="">-- Chọn Vị trí --</option>
-                                    <option value="headers">Headers</option>
-                                    <option value="params">Params</option>
-                                    <option value="body">Body</option>
-                                </select>
-                                <input
-                                    placeholder="Field cần kiểm tra (ví dụ: userId)"
-                                    value={expectForm.field}
-                                    onChange={(e) => setExpectForm({ ...expectForm, field: e.target.value })}
-                                    className="border p-1 rounded"
-                                />
+                                    ➕ Thêm điều kiện
+                                </button>
+
                                 <select
-                                    value={expectForm.comparison}
-                                    onChange={(e) => setExpectForm({ ...expectForm, comparison: e.target.value })}
-                                    className="border p-1 rounded"
+                                    value={nextLogic}
+                                    onChange={(e) => setNextLogic(e.target.value as "AND" | "OR")}
+                                    className="border p-1 rounded text-xs"
                                 >
-                                    <option value="">-- Chọn kiểu so sánh --</option>
-                                    <option value="equals">= (equals)</option>
-                                    <option value="not_equals">≠ (not equals)</option>
-                                    <option value="contains">contains</option>
-                                    <option value="regex">regex</option>
-                                    <option value="exists">exists</option>
+                                    <option value="AND">Liên kết bằng AND</option>
+                                    <option value="OR">Liên kết bằng OR</option>
                                 </select>
+
                             </div>
-                            <input
-                                placeholder="Giá trị mong đợi"
-                                value={expectForm.expectedValue}
-                                onChange={(e) => setExpectForm({ ...expectForm, expectedValue: e.target.value })}
-                                className="border p-1 rounded w-full mb-2"
-                            />
-                            <label className="flex items-center gap-2 mb-3">
-                                <input
-                                    type="checkbox"
-                                    checked={expectForm.enabled}
-                                    onChange={(e) => setExpectForm({ ...expectForm, enabled: e.target.checked })}
+                            {/* Preview điều kiện */}
+                            <div className="border-t pt-3">
+                                <h3 className="font-medium mb-2 text-sm text-gray-700">🔍 Preview Logic:</h3>
+                                <div className="bg-gray-100 p-3 rounded font-mono text-sm text-gray-800">
+                                    {renderPreview()}
+                                </div>
+                            </div>
+
+{/* ⚙️ Mã lỗi + Kiểu dữ liệu trả về */}
+<div className="flex flex-wrap gap-3">
+  {/* ⚠️ Mã lỗi HTTP Status Code */}
+  <div className="mb-3 w-full md:w-1/2">
+    <h3 className="font-semibold mb-1 text-sm text-gray-700">
+      ⚠️ HTTP Status Code
+    </h3>
+    <input
+      type="text"
+      list="statusList"
+      placeholder="Nhập hoặc chọn mã lỗi..."
+      value={expectForm.mockResponseStatus || ""}
+      onChange={(e) =>
+        setExpectForm({
+          ...expectForm,
+          mockResponseStatus: e.target.value,
+        })
+      }
+      className="border p-1 rounded w-full"
+    />
+    <datalist id="statusList">
+      {httpStatusCodes.map((s) => (
+        <option key={s.code} value={s.code}>
+          {s.code} - {s.text}
+        </option>
+      ))}
+    </datalist>
+
+    {expectForm.mockResponseStatus && (
+      <p
+        className={`text-sm font-medium mt-1 ${
+          Number(expectForm.mockResponseStatus) >= 200 &&
+          Number(expectForm.mockResponseStatus) < 300
+            ? "text-green-600"
+            : Number(expectForm.mockResponseStatus) >= 300 &&
+              Number(expectForm.mockResponseStatus) < 400
+            ? "text-blue-600"
+            : Number(expectForm.mockResponseStatus) >= 400 &&
+              Number(expectForm.mockResponseStatus) < 500
+            ? "text-yellow-600"
+            : Number(expectForm.mockResponseStatus) >= 500
+            ? "text-red-600"
+            : "text-gray-600"
+        }`}
+      >
+        {(() => {
+          const found = httpStatusCodes.find(
+            (s) => s.code === Number(expectForm.mockResponseStatus)
+          );
+          return found
+            ? `${found.code} - ${found.text}`
+            : `⚠️ Mã lỗi ${expectForm.mockResponseStatus} không hợp lệ hoặc chưa có mô tả.`;
+        })()}
+      </p>
+    )}
+  </div>
+
+  {/* 📦 Kiểu dữ liệu trả về */}
+  <div className="mb-3 w-full md:w-1/2">
+    <h3 className="font-semibold mb-1 text-sm text-gray-700">
+      📦 Kiểu dữ liệu trả về
+    </h3>
+    <select
+      value={expectForm.contentType || "application/json"}
+      onChange={(e) =>
+        setExpectForm({ ...expectForm, contentType: e.target.value })
+      }
+      className="border p-1 rounded w-full"
+    >
+      <option value="application/json">application/json</option>
+      <option value="text/plain">text/plain</option>
+      <option value="application/xml">application/xml</option>
+      <option value="text/html">text/html</option>
+      <option value="application/octet-stream">
+        application/octet-stream
+      </option>
+    </select>
+  </div>
+</div>
+
+
+                            {/* ⚙️ Dữ liệu mock trả về */}
+                            <div className="mb-3">
+                                <h3 className="font-semibold mb-1 text-sm text-gray-700">🧾 Mock Response Data</h3>
+                                <textarea
+                                    placeholder="Nhập nội dung response (JSON hoặc text)"
+                                    rows={5}
+                                    value={expectForm.mockResponse || ""}
+                                    onChange={(e) =>
+                                        setExpectForm({ ...expectForm, mockResponse: e.target.value })
+                                    }
+                                    className="border p-2 rounded w-full font-mono text-xs"
                                 />
-                                Bật Expect này
-                            </label>
-                            <button
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold p-2 rounded"
-                                onClick={addExpectation}
-                            >
-                                ➕ Thêm Expectation
-                            </button>
+                            </div>
+
                         </div>
                     )}
 

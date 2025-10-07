@@ -100,9 +100,10 @@ async function loadProcessors(project: string, endpoint: string, method: string)
   console.log(`checker ${dbFile}`)
   const db = await open({ filename: dbFile, driver: sqlite3.Database });
   const rows = await db.all(
-    `SELECT * FROM processors WHERE project=? AND endpoint=? AND method=? ORDER BY id ASC`,
+    `SELECT * FROM processors WHERE project=? AND endpoint=? AND method=? and enabled = 1 ORDER BY id ASC`,
     [project, endpoint, method]
   );
+  console.log(rows);
   await db.close();
   return rows;
 }
@@ -241,7 +242,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const expectations = processors.filter(
       (x: any) => x.type === "expectation" && (x.enabled === 1 || x.enabled === true)
     );
-
+    console.log(expectations)
     if (expectations.length > 0) {
       const { matched, logs } = await checkExpectations(req, res, expectations);
       if (matched) return; // đã trả response ở trong hàm rồi

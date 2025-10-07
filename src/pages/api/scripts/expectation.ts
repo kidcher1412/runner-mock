@@ -79,28 +79,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         endpoint,
         method,
         name,
-        location,
-        field,
-        comparison,
-        expectedValue,
-        requestBody,
-        responseBody,
+        logic,
+        contentType,
+        mockResponse,
+        mockResponseStatus,
+        conditions,
         enabled = true,
       } = req.body;
 
-      if (!endpoint || !method || !name || !location || !field || !comparison) {
+      if (!endpoint || !method || !name || !Array.isArray(conditions) || conditions.length === 0) {
         await db.close();
-        return res.status(400).json({ error: "Missing required fields" });
+        return res.status(400).json({ error: "Missing or invalid fields (endpoint, method, name, conditions[] required)" });
       }
 
+      // Tạo cấu trúc expectation đầy đủ
       const expectation = {
         name,
-        location,
-        field,
-        comparison,
-        expectedValue,
-        requestBody: requestBody || null,
-        responseBody: responseBody || null,
+        logic: logic || "AND",
+        contentType: contentType || "application/json",
+        mockResponse: mockResponse || "",
+        mockResponseStatus: mockResponseStatus || "",
+        conditions,
       };
 
       const info = await db.run(
@@ -135,40 +134,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ updated: id });
       }
 
-      // ✅ Bật/tắt Expect Mode
-      // if (endpoint && method && enabled !== undefined) {
-      //   if (enabled) {
-      //     // Bật Expect Mode: bật expectation, tắt pre/post
-      //     await db.run(
-      //       `UPDATE processors 
-      //        SET enabled = CASE 
-      //          WHEN type = 'expectation' THEN 1 
-      //          ELSE 0 
-      //        END
-      //        WHERE project = ? AND endpoint = ? AND method = ?`,
-      //       [project, endpoint, method]
-      //     );
-      //   } else {
-      //     // Tắt Expect Mode: bật pre/post, tắt expectation
-      //     await db.run(
-      //       `UPDATE processors 
-      //        SET enabled = CASE 
-      //          WHEN type IN ('pre','post') THEN 1 
-      //          ELSE 0 
-      //        END
-      //        WHERE project = ? AND endpoint = ? AND method = ?`,
-      //       [project, endpoint, method]
-      //     );
-      //   }
-
-      //   await db.close();
-      //   return res.status(200).json({
-      //     project,
-      //     endpoint,
-      //     method,
-      //     expectMode: enabled,
-      //   });
-      // }
       if (enabled == true) {
         console.log('bật mode expectation');
 
