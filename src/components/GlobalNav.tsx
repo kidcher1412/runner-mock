@@ -34,7 +34,7 @@ export default function GlobalNav() {
                 <Home className="h-6 w-6" />
                 <span className="text-xs mt-1">Trang chủ</span>
               </Link>
-              <Link href="/projects" className="flex flex-col items-center hover:text-blue-600 transition">
+              <Link href="/projects/upload/list" className="flex flex-col items-center hover:text-blue-600 transition">
                 <FolderOpen className="h-6 w-6" />
                 <span className="text-xs mt-1">Dự án</span>
               </Link>

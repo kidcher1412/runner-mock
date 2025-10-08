@@ -1,19 +1,33 @@
-export function schemaToExample(schema: any): any {
+// 🧩 Tạo ví dụ mẫu từ schema OpenAPI (có hỗ trợ $ref)
+export function schemaToExample(schema: any, rootSpec: any): any {
   if (!schema || typeof schema !== "object") return {};
 
+  // 🔁 Nếu gặp $ref → resolve đến components.schemas
+  if (schema.$ref && rootSpec) {
+    const refPath = schema.$ref.replace(/^#\//, "").split("/");
+    const resolved = refPath.reduce(
+      (obj: any, key: string) => obj?.[key],
+      rootSpec
+    );
+    if (!resolved) return { $ref: schema.$ref, error: "Unresolved ref" };
+    return schemaToExample(resolved, rootSpec);
+  }
+
+  // 🔹 Xử lý object
   if (schema.type === "object" && schema.properties) {
     const obj: Record<string, any> = {};
     for (const [key, value] of Object.entries(schema.properties)) {
-      obj[key] = schemaToExample(value);
+      obj[key] = schemaToExample(value, rootSpec);
     }
     return obj;
   }
 
+  // 🔹 Xử lý array
   if (schema.type === "array") {
-    return [schemaToExample(schema.items)];
+    return [schemaToExample(schema.items, rootSpec)];
   }
 
-  // Với kiểu primitive
+  // 🔹 Primitive types
   if (schema.example !== undefined) return schema.example;
   if (schema.enum) return schema.enum[0];
   if (schema.type === "string") return "string";
@@ -22,20 +36,21 @@ export function schemaToExample(schema: any): any {
 
   return null;
 }
-export function formatResponseSchemaWithExamples(schemaObj: any) {
+// 🧾 Hiển thị schema response + example
+export function formatResponseSchemaWithExamples(schemaObj: any, rootSpec: any) {
   if (!schemaObj || typeof schemaObj !== "object") return "No schema";
 
   const content = schemaObj.content?.["application/json"];
   const schema = content?.schema;
   const examples = content?.examples;
-  const example = content?.example; 
+  const example = content?.example;
 
   let output = "";
 
   // 🧩 Schema
   if (schema) {
     output += "📘 Schema:\n";
-    output += JSON.stringify(schemaToExample(schema), null, 2);
+    output += JSON.stringify(schemaToExample(schema, rootSpec), null, 2);
   }
 
   // 🧪 Nếu có nhiều examples

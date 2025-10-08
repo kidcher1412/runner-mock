@@ -7,16 +7,16 @@ export default function DashboardLinks() {
       url: "/projects/upload",
       description: "Upload file OpenAPI, tạo project mới và SQLite DB nếu cần",
     },
+        {
+      name: "List Project",
+      url: "/projects/upload/list",
+      description: "Quản lý các API đã tạo",
+    },
     {
       name: "Project List & Endpoints",
       url: "/projects",
       description: "Xem danh sách project và tất cả endpoints với method màu sắc",
-    },
-    {
-      name: "SQL Mapping GUI",
-      url: "/projects/<project>",
-      description: "Quản lý SQL mapping cho từng endpoint, gán dữ liệu mock từ DB",
-    },
+    }
   ];
 
   return (

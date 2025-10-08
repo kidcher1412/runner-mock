@@ -32,7 +32,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
                 <table className="min-w-full text-xs border-collapse">
                     <thead className="bg-gray-100">
                         <tr>
-                            {columns.map(col => (
+                            {Array.isArray(columns) &&  columns.map(col => (
                                 <th key={col} className="border px-2 py-1 text-left font-semibold text-gray-700">
                                     {col}
                                 </th>
@@ -40,9 +40,9 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.map((row, i) => (
+                        {Array.isArray(rows) && rows.map((row, i) => (
                             <tr key={i} className="odd:bg-white even:bg-gray-50">
-                                {columns.map(col => {
+                                {Array.isArray(columns) && columns.map(col => {
                                     const value = String(row[col] ?? "");
                                     const preview = value.length > 30 ? value.slice(0, 30) + "..." : value;
                                     return (
@@ -71,7 +71,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
                 className="border p-2 rounded w-full mb-4"
             >
                 <option value="">-- Chọn bảng --</option>
-                {tables.map(t => (
+                {Array.isArray(tables) && tables.map(t => (
                     <option key={t} value={t}>
                         {t}
                     </option>

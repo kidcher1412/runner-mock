@@ -261,6 +261,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    //-------------------- Example----------------------
+      const schema200 = operation.responses?.["200"]?.content?.["application/json"]?.schema as SchemaObject;
+      if (schema200){
+        const contentJson = operation.responses["200"].content["application/json"];
+        // Lấy example trực tiếp
+        let exampleReturn: any = contentJson?.example;
+
+        // Nếu không có example thì lấy giá trị đầu tiên trong examples
+        if ( contentJson?.examples) {
+          const examplesObj = contentJson.examples as Record<string, { value: any }>;
+          const firstExampleKey = Object.keys(examplesObj)[0];
+          if (firstExampleKey) {
+            exampleReturn = examplesObj[firstExampleKey].value;
+          }
+        }
+
+        if (exampleReturn) {
+          return res.status(200).json(exampleReturn);
+        }
+      }
+
     // ------------------- Mock data -------------------
     let mockData = generateMock(operation.responses?.["200"]?.content?.["application/json"]?.schema);
     if (proj.useDB && proj.dbFile) {

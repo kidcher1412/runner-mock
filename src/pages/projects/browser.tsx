@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import { Folder, Database } from "lucide-react"; // icon đẹp, dùng chung shadcn/lucide
 import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
 
 const ProjectEndpointMapping = dynamic(
     () => import("./components/ProjectEndpointMapping"),
@@ -19,19 +20,26 @@ type Project = {
 export default function ProjectPage() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+    const searchParams = useSearchParams(); // phải có ngoặc ()
 
     useEffect(() => {
-        // Fetch danh sách project từ API
         (async () => {
             const res = await fetch("/api/projects");
             const data = await res.json();
             if (Array.isArray(data)) {
                 setProjects(data);
-                setSelectedProject(data[0].name)
+                setSelectedProject(data[0]); // ✅ sửa
             }
-
         })();
     }, []);
+
+    useEffect(() => {
+        const name = searchParams.get("name");
+        if (!name || projects.length === 0) return;
+
+        const found = projects.find(p => p.name === name);
+        if (found) setSelectedProject(found); // ✅ chạy khi projects thay đổi
+    }, [searchParams, projects]);
 
     return (
         <div className="h-screen flex bg-gray-100">

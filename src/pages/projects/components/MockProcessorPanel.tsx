@@ -2,6 +2,7 @@
 import { httpStatusCodes } from "@/statics/data/httpStatusCodes";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import ExpectationForm from "./ExpectationForm";
 
 type EndpointOption = {
     path: string;
@@ -40,7 +41,7 @@ export default function MockProcessorPanel({
     endpoints: EndpointOption[];
     selectedEndpoint: EndpointOption | null;
     selectEndpoint: (v: string) => void;
-    schemaToExample: (schema: any) => any;
+    schemaToExample: (schema: any, rootSpec: any) => any;
 }) {
     const [activeTab, setActiveTab] = useState<"pre" | "post" | "expectation">("pre");
     const [processors, setProcessors] = useState<Processor[]>([]);
@@ -128,78 +129,78 @@ export default function MockProcessorPanel({
     };
 
     const addProcessor = async () => {
-    const apiUrl =
-        activeTab === "expectation"
-            ? "/api/scripts/expectation"
-            : "/api/scripts/process";
+        const apiUrl =
+            activeTab === "expectation"
+                ? "/api/scripts/expectation"
+                : "/api/scripts/process";
 
-    // Trường hợp không chọn endpoint
-    if (!selectedEndpoint) {
-        alert("Thiếu thông tin endpoint!");
-        return;
-    }
-
-    // Nếu là expectation
-    if (activeTab === "expectation") {
-        if (
-            !expectForm.name.trim() ||
-            !expectForm.conditions?.length
-        ) {
-            alert("Thiếu tên hoặc điều kiện expectation!");
-            console.log(expectForm);
+        // Trường hợp không chọn endpoint
+        if (!selectedEndpoint) {
+            alert("Thiếu thông tin endpoint!");
             return;
         }
 
-        await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                project,
-                endpoint: selectedEndpoint.path,
-                method: selectedEndpoint.method,
-                type: activeTab,
-                ...expectForm,
-            }),
-        });
+        // Nếu là expectation
+        if (activeTab === "expectation") {
+            if (
+                !expectForm.name.trim() ||
+                !expectForm.conditions?.length
+            ) {
+                alert("Thiếu tên hoặc điều kiện expectation!");
+                console.log(expectForm);
+                return;
+            }
 
-        // Reset form expectation sau khi thêm
-        setExpectForm({
-            name: "",
-            logic: "AND",
-            conditions: [],
-            contentType: "application/json",
-            mockResponse: "",
-            mockResponseStatus: "200",
-        });
-    }
+            await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    project,
+                    endpoint: selectedEndpoint.path,
+                    method: selectedEndpoint.method,
+                    type: activeTab,
+                    ...expectForm,
+                }),
+            });
 
-    // Nếu là processor thông thường
-    else {
-        if (!newCode.trim()) {
-            alert("Thiếu nội dung code!");
-            console.log(expectForm);
-            return;
+            // Reset form expectation sau khi thêm
+            setExpectForm({
+                name: "",
+                logic: "AND",
+                conditions: [],
+                contentType: "application/json",
+                mockResponse: "",
+                mockResponseStatus: "200",
+            });
         }
 
-        await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                project,
-                endpoint: selectedEndpoint.path,
-                method: selectedEndpoint.method,
-                type: activeTab,
-                code: newCode,
-            }),
-        });
+        // Nếu là processor thông thường
+        else {
+            if (!newCode.trim()) {
+                alert("Thiếu nội dung code!");
+                console.log(expectForm);
+                return;
+            }
 
-        // Reset code sau khi thêm
-        setNewCode("");
-    }
+            await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    project,
+                    endpoint: selectedEndpoint.path,
+                    method: selectedEndpoint.method,
+                    type: activeTab,
+                    code: newCode,
+                }),
+            });
 
-    // Reload lại danh sách sau khi thêm
-    loadProcessors(selectedEndpoint);
-};
+            // Reset code sau khi thêm
+            setNewCode("");
+        }
+
+        // Reload lại danh sách sau khi thêm
+        loadProcessors(selectedEndpoint);
+    };
 
 
     const openModal = (p: Processor) => {
@@ -219,7 +220,7 @@ export default function MockProcessorPanel({
         await fetch(apiUrl, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id,project:project }),
+            body: JSON.stringify({ id, project: project }),
         });
 
         setShowModal(false);
@@ -242,7 +243,7 @@ export default function MockProcessorPanel({
                     project,
                     endpoint: selectedEndpoint.path,
                     method: selectedEndpoint.method,
-                    code: editCode,
+                    code: selectedProcessor.code,
                 }
                 : {
                     id: selectedProcessor.id,
@@ -390,6 +391,7 @@ export default function MockProcessorPanel({
             .join(" ");
     };
 
+    const [modeViewModal, setModeViewModal] = useState<"view" | "edit">("view");
 
 
     return (
@@ -402,7 +404,7 @@ export default function MockProcessorPanel({
                 className="border p-2 rounded mb-3"
             >
                 <option value="">-- Chọn Endpoint --</option>
-                {endpoints.map((ep) => (
+                {Array.isArray(endpoints) && endpoints.map((ep) => (
                     <option key={ep.path + ep.method} value={`${ep.path}|${ep.method}`}>
                         {ep.method.toUpperCase()} {ep.path}
                     </option>
@@ -474,7 +476,7 @@ export default function MockProcessorPanel({
 
                             <h3 className="font-semibold mb-2">🧩 Điều kiện kiểm tra</h3>
 
-                            {expectForm.conditions.map((cond, i) => (
+                            {Array.isArray(expectForm.conditions) && expectForm.conditions.map((cond, i) => (
                                 <div key={i} className="border rounded p-2 mb-2 bg-white grid grid-cols-6 gap-2 items-center">
                                     {/* Dấu ngoặc */}
                                     <div className="flex flex-col items-center">
@@ -570,85 +572,84 @@ export default function MockProcessorPanel({
                                 </div>
                             </div>
 
-{/* ⚙️ Mã lỗi + Kiểu dữ liệu trả về */}
-<div className="flex flex-wrap gap-3">
-  {/* ⚠️ Mã lỗi HTTP Status Code */}
-  <div className="mb-3 w-full md:w-1/2">
-    <h3 className="font-semibold mb-1 text-sm text-gray-700">
-      ⚠️ HTTP Status Code
-    </h3>
-    <input
-      type="text"
-      list="statusList"
-      placeholder="Nhập hoặc chọn mã lỗi..."
-      value={expectForm.mockResponseStatus || ""}
-      onChange={(e) =>
-        setExpectForm({
-          ...expectForm,
-          mockResponseStatus: e.target.value,
-        })
-      }
-      className="border p-1 rounded w-full"
-    />
-    <datalist id="statusList">
-      {httpStatusCodes.map((s) => (
-        <option key={s.code} value={s.code}>
-          {s.code} - {s.text}
-        </option>
-      ))}
-    </datalist>
+                            {/* ⚙️ Mã lỗi + Kiểu dữ liệu trả về */}
+                            <div className="flex flex-wrap gap-3">
+                                {/* ⚠️ Mã lỗi HTTP Status Code */}
+                                <div className="mb-3 w-full md:w-1/2">
+                                    <h3 className="font-semibold mb-1 text-sm text-gray-700">
+                                        ⚠️ HTTP Status Code
+                                    </h3>
+                                    <input
+                                        type="text"
+                                        list="statusList"
+                                        placeholder="Nhập hoặc chọn mã lỗi..."
+                                        value={expectForm.mockResponseStatus || ""}
+                                        onChange={(e) =>
+                                            setExpectForm({
+                                                ...expectForm,
+                                                mockResponseStatus: e.target.value,
+                                            })
+                                        }
+                                        className="border p-1 rounded w-full"
+                                    />
+                                    <datalist id="statusList">
+                                        {Array.isArray(httpStatusCodes) && httpStatusCodes.map((s) => (
+                                            <option key={s.code} value={s.code}>
+                                                {s.code} - {s.text}
+                                            </option>
+                                        ))}
+                                    </datalist>
 
-    {expectForm.mockResponseStatus && (
-      <p
-        className={`text-sm font-medium mt-1 ${
-          Number(expectForm.mockResponseStatus) >= 200 &&
-          Number(expectForm.mockResponseStatus) < 300
-            ? "text-green-600"
-            : Number(expectForm.mockResponseStatus) >= 300 &&
-              Number(expectForm.mockResponseStatus) < 400
-            ? "text-blue-600"
-            : Number(expectForm.mockResponseStatus) >= 400 &&
-              Number(expectForm.mockResponseStatus) < 500
-            ? "text-yellow-600"
-            : Number(expectForm.mockResponseStatus) >= 500
-            ? "text-red-600"
-            : "text-gray-600"
-        }`}
-      >
-        {(() => {
-          const found = httpStatusCodes.find(
-            (s) => s.code === Number(expectForm.mockResponseStatus)
-          );
-          return found
-            ? `${found.code} - ${found.text}`
-            : `⚠️ Mã lỗi ${expectForm.mockResponseStatus} không hợp lệ hoặc chưa có mô tả.`;
-        })()}
-      </p>
-    )}
-  </div>
+                                    {expectForm.mockResponseStatus && (
+                                        <p
+                                            className={`text-sm font-medium mt-1 ${Number(expectForm.mockResponseStatus) >= 200 &&
+                                                Number(expectForm.mockResponseStatus) < 300
+                                                ? "text-green-600"
+                                                : Number(expectForm.mockResponseStatus) >= 300 &&
+                                                    Number(expectForm.mockResponseStatus) < 400
+                                                    ? "text-blue-600"
+                                                    : Number(expectForm.mockResponseStatus) >= 400 &&
+                                                        Number(expectForm.mockResponseStatus) < 500
+                                                        ? "text-yellow-600"
+                                                        : Number(expectForm.mockResponseStatus) >= 500
+                                                            ? "text-red-600"
+                                                            : "text-gray-600"
+                                                }`}
+                                        >
+                                            {(() => {
+                                                const found = httpStatusCodes.find(
+                                                    (s) => s.code === Number(expectForm.mockResponseStatus)
+                                                );
+                                                return found
+                                                    ? `${found.code} - ${found.text}`
+                                                    : `⚠️ Mã lỗi ${expectForm.mockResponseStatus} không hợp lệ hoặc chưa có mô tả.`;
+                                            })()}
+                                        </p>
+                                    )}
+                                </div>
 
-  {/* 📦 Kiểu dữ liệu trả về */}
-  <div className="mb-3 w-full md:w-1/2">
-    <h3 className="font-semibold mb-1 text-sm text-gray-700">
-      📦 Kiểu dữ liệu trả về
-    </h3>
-    <select
-      value={expectForm.contentType || "application/json"}
-      onChange={(e) =>
-        setExpectForm({ ...expectForm, contentType: e.target.value })
-      }
-      className="border p-1 rounded w-full"
-    >
-      <option value="application/json">application/json</option>
-      <option value="text/plain">text/plain</option>
-      <option value="application/xml">application/xml</option>
-      <option value="text/html">text/html</option>
-      <option value="application/octet-stream">
-        application/octet-stream
-      </option>
-    </select>
-  </div>
-</div>
+                                {/* 📦 Kiểu dữ liệu trả về */}
+                                <div className="mb-3 w-full md:w-1/2">
+                                    <h3 className="font-semibold mb-1 text-sm text-gray-700">
+                                        📦 Kiểu dữ liệu trả về
+                                    </h3>
+                                    <select
+                                        value={expectForm.contentType || "application/json"}
+                                        onChange={(e) =>
+                                            setExpectForm({ ...expectForm, contentType: e.target.value })
+                                        }
+                                        className="border p-1 rounded w-full"
+                                    >
+                                        <option value="application/json">application/json</option>
+                                        <option value="text/plain">text/plain</option>
+                                        <option value="application/xml">application/xml</option>
+                                        <option value="text/html">text/html</option>
+                                        <option value="application/octet-stream">
+                                            application/octet-stream
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
 
 
                             {/* ⚙️ Dữ liệu mock trả về */}
@@ -777,7 +778,7 @@ export default function MockProcessorPanel({
 
                     {showConsole && (
                         <div className="mt-2 border rounded bg-black text-green-400 p-2 text-xs font-mono h-32 overflow-auto">
-                            {consoleOutput.map((line, i) => (
+                            {Array.isArray(consoleOutput) && consoleOutput.map((line, i) => (
                                 <div key={i}>{line}</div>
                             ))}
                         </div>
@@ -795,7 +796,7 @@ export default function MockProcessorPanel({
                             </tr>
                         </thead>
                         <tbody>
-                            {processors
+                            {Array.isArray(processors) && processors
                                 .filter((p) => p.type === activeTab)
                                 .map((p) => (
                                     <tr key={p.id} className="hover:bg-gray-50">
@@ -821,16 +822,60 @@ export default function MockProcessorPanel({
                     {/* Modal */}
                     {showModal && selectedProcessor && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                            <div className="bg-white rounded-lg p-4 w-[600px] shadow-lg">
+                            <div className="bg-white rounded-lg p-4 w-[600px] shadow-lg max-h-[90vh] overflow-y-auto">
                                 <h3 className="text-lg font-semibold mb-2">
-                                    Processor #{selectedProcessor.id}
+                                    {activeTab === "expectation"
+                                        ? `Expectation #${selectedProcessor.id}`
+                                        : `Processor #${selectedProcessor.id}`}
                                 </h3>
-                                <textarea
-                                    value={editCode}
-                                    onChange={(e) => setEditCode(e.target.value)}
-                                    className="border p-2 rounded w-full h-48 text-xs font-mono mb-3"
-                                />
-                                <div className="flex justify-between">
+
+                                {activeTab === "expectation" ? (
+                                    <>
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="text-xl font-semibold">
+                                                {modeViewModal === "edit" ? "📝 Chỉnh sửa điều kiện" : "👁️ Xem chi tiết"}
+                                            </h2>
+
+                                            <button
+                                                onClick={() => setModeViewModal(modeViewModal === "edit" ? "view" : "edit")}
+                                                className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700"
+                                            >
+                                                {modeViewModal === "edit" ? "Xem" : "Chỉnh sửa"}
+                                            </button>
+                                        </div>
+                                        <ExpectationForm
+                                            value={
+                                                selectedProcessor.code
+                                                    ? JSON.parse(selectedProcessor.code)
+                                                    : {
+                                                        name: "",
+                                                        logic: "AND",
+                                                        contentType: "application/json",
+                                                        mockResponse: "",
+                                                        mockResponseStatus: "200",
+                                                        conditions: [],
+                                                    }
+                                            }
+                                            onChange={(v) =>
+                                                setSelectedProcessor({
+                                                    ...selectedProcessor,
+                                                    code: JSON.stringify(v, null, 2),
+                                                })
+                                            }
+
+                                            readOnly={modeViewModal === "view"}
+
+                                        />
+                                    </>
+                                ) : (
+                                    <textarea
+                                        value={editCode}
+                                        onChange={(e) => setEditCode(e.target.value)}
+                                        className="border p-2 rounded w-full h-48 text-xs font-mono mb-3"
+                                    />
+                                )}
+
+                                <div className="flex justify-between mt-3">
                                     <button
                                         onClick={() => setShowModal(false)}
                                         className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"

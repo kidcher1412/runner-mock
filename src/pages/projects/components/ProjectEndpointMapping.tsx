@@ -20,11 +20,13 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
   const [tables, setTables] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dbDisabled, setDbDisabled] = useState(false); // 🆕 flag khi DB mode không bật
 
   useEffect(() => {
     if (!projectName) return;
     setLoading(true);
     setError(null);
+    setDbDisabled(false);
 
     (async () => {
       try {
@@ -46,8 +48,16 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
 
         // --- Load bảng DB ---
         const tablesRes = await fetch(`/api/db/tables?project=${projectName}`);
-        const tbls = await tablesRes.json();
-        if (Array.isArray(tbls)) setTables(tbls);
+        if (tablesRes.status === 404) {
+          // 🚫 Dự án không bật DB mode
+          setDbDisabled(true);
+          setTables([]);
+        } else if (tablesRes.ok) {
+          const tbls = await tablesRes.json();
+          if (Array.isArray(tbls)) setTables(tbls);
+        } else {
+          throw new Error("Không thể tải danh sách bảng DB");
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -79,7 +89,8 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-4 h-screen">
+    <div className="relative grid grid-cols-2 gap-4 p-4 h-screen">
+      {/* Các panel chính */}
       <MockProcessorPanel
         project={projectName}
         endpoints={endpoints}
@@ -88,6 +99,20 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
         schemaToExample={schemaToExample}
       />
       <DbSqlRunnerPanel project={projectName} tables={tables} />
+
+      {/* 🟡 Overlay nếu DB mode không bật */}
+      {dbDisabled && (
+        <div className="absolute inset-0 bg-gray-200 bg-opacity-70 flex flex-col items-center justify-center backdrop-blur-sm rounded-lg">
+          <div className="text-center">
+            <p className="text-lg font-semibold text-gray-700">
+              Dự án này không bật <span className="font-bold text-blue-600">DB Mode</span>
+            </p>
+            <p className="text-sm text-gray-600 mt-1">
+              Các tính năng sử dụng cơ sở dữ liệu tạm thời bị vô hiệu hóa.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

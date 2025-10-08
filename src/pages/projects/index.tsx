@@ -1,6 +1,7 @@
 "use client";
 
 import { formatResponseSchemaWithExamples, schemaToExample } from "@/helper/formatJsonSchemaExample";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Project = {
@@ -39,32 +40,55 @@ export default function ProjectManager() {
 
     // Inputs: body/query/header per endpoint
     const [inputs, setInputs] = useState<Record<string, string>>({});
+    const [rootSpec, setRootSpec] = useState<any>(null);
 
-    useEffect(() => {
-        fetch("/api/projects")
-            .then(res => res.json())
-            .then(data => setProjects(data))
-            .catch(err => console.error(err));
-    }, []);
+    const searchParams = useSearchParams(); // phải có ngoặc ()
 
-    // useEffect(() => {
-    //     if (!selectedProject) return;
+// --- Lấy danh sách project ---
+  useEffect(() => {
+    fetch("/api/projects")
+      .then(res => res.json())
+      .then((data: Project[]) => setProjects(data))
+      .catch(err => console.error(err));
+  }, []);
 
-    //     fetch(`/api/project-file?name=${encodeURIComponent(selectedProject.name)}`)
-    //         .then(res => res.json())
-    //         .then((api: any) => {
-    //             const eps: Endpoint[] = Object.entries(api.paths || {}).map(([path, pathItem]) => ({
-    //                 path,
-    //                 methods: Object.keys(pathItem || {}),
-    //                 requestBody: Object.values(pathItem || {}).map(
-    //                     (m: any) => m.requestBody?.content?.["application/json"]?.schema
-    //                 ),
-    //                 responses: Object.values(pathItem || {}).map((m: any) => m.responses || {}),
-    //             }));
-    //             setEndpoints(eps);
-    //         })
-    //         .catch(err => console.error(err));
-    // }, [selectedProject]);
+  // --- Khi có projects + name trên URL ---
+  useEffect(() => {
+    const name = searchParams.get("name");
+    if (!name || projects.length === 0) return;
+
+    // 🔹 Tìm project trong danh sách
+    const found = projects.find(p => p.name === name);
+    if (found) setSelectedProject(found);
+
+    // 🔹 Lấy dữ liệu OpenAPI tương ứng
+    fetch(`/api/project-file?name=${encodeURIComponent(name)}`)
+      .then(res => res.json())
+      .then((api: any) => {
+        const eps: Endpoint[] = [];
+        setRootSpec(api);
+
+        Object.entries(api.paths || {}).forEach(([path, pathItem]: [string, any]) => {
+          Object.entries(pathItem || {}).forEach(([method, operation]: [string, any]) => {
+            eps.push({
+              path,
+              methods: [method.toUpperCase()],
+              requestBody: operation.requestBody
+                ? Object.entries(operation.requestBody.content || {}).map(([ctype, obj]: [string, any]) => ({
+                    contentType: ctype,
+                    ...obj,
+                  }))
+                : [],
+              responses: [operation.responses || {}],
+            });
+          });
+        });
+
+        setEndpoints(eps);
+      })
+      .catch(err => console.error(err));
+  }, [searchParams, projects]);
+
 
     useEffect(() => {
         if (!selectedProject) return;
@@ -73,6 +97,7 @@ export default function ProjectManager() {
             .then(res => res.json())
             .then((api: any) => {
                 const eps: Endpoint[] = [];
+                setRootSpec(api); // 🧩 Lưu spec gốc để xử lý $ref
 
                 Object.entries(api.paths || {}).forEach(([path, pathItem]: [string, any]) => {
                     Object.entries(pathItem || {}).forEach(([method, operation]: [string, any]) => {
@@ -111,26 +136,26 @@ export default function ProjectManager() {
         setInputs(prev => ({ ...prev, [key]: value }));
     };
 
-// const testEndpointWithValidation = async (ep: Endpoint, epKey: string, opts?: {
-//   headers: KeyValue[];
-//   params: KeyValue[];
-//   body?: any;
-//   method: string;
-// }) => {
-//   try {
-//     const url = `/api/${selectedProject?.name}${ep.path}`;
-//     const res = await fetch(url, {
-//       method: opts.method,
-//       headers: Object.fromEntries(opts.headers.map(h => [h.key, h.value])),
-//       body: opts.method !== "GET" ? opts.body : undefined,
-//     });
+    // const testEndpointWithValidation = async (ep: Endpoint, epKey: string, opts?: {
+    //   headers: KeyValue[];
+    //   params: KeyValue[];
+    //   body?: any;
+    //   method: string;
+    // }) => {
+    //   try {
+    //     const url = `/api/${selectedProject?.name}${ep.path}`;
+    //     const res = await fetch(url, {
+    //       method: opts.method,
+    //       headers: Object.fromEntries(opts.headers.map(h => [h.key, h.value])),
+    //       body: opts.method !== "GET" ? opts.body : undefined,
+    //     });
 
-//     const data = await res.json();
-//     setResponses(prev => ({ ...prev, [epKey]: { status: res.status, data } }));
-//   } catch (err: any) {
-//     setResponses(prev => ({ ...prev, [epKey]: { status: 500, data: { error: err.message } } }));
-//   }
-// };
+    //     const data = await res.json();
+    //     setResponses(prev => ({ ...prev, [epKey]: { status: res.status, data } }));
+    //   } catch (err: any) {
+    //     setResponses(prev => ({ ...prev, [epKey]: { status: 500, data: { error: err.message } } }));
+    //   }
+    // };
 
 
     const testEndpointWithValidation = async (
@@ -255,7 +280,7 @@ export default function ProjectManager() {
 
                                                         {showReqMap[`${idx}-schema-${j}`] && (
                                                             <pre className="bg-gray-50 p-2 rounded overflow-auto text-sm">
-                                                                {JSON.stringify(schemaToExample(rb.schema), null, 2)}
+                                                                {JSON.stringify(schemaToExample(rb.schema, rootSpec), null, 2)}
                                                             </pre>
                                                         )}
                                                     </div>
@@ -397,9 +422,9 @@ export default function ProjectManager() {
                                                             className="mt-1 px-3 py-1 bg-blue-500 text-white rounded hover:opacity-80"
                                                             onClick={() =>
                                                                 testEndpointWithValidation(ep, epKey, {
-                                                                headers: headers[idx] || [],
-                                                                params: params[idx] || [],
-                                                                body: inputs[`${epKey}-body`],
+                                                                    headers: headers[idx] || [],
+                                                                    params: params[idx] || [],
+                                                                    body: inputs[`${epKey}-body`],
                                                                 })
                                                             }
                                                         >
@@ -410,23 +435,22 @@ export default function ProjectManager() {
                                             </div>
                                         )}
 
-        {/* Response Preview chỉ riêng cho epKey này */}
-        {responses[epKey] && (
-          <div className="mt-4">
-            <h3
-              className={`font-bold ${
-                responses[epKey].status >= 200 && responses[epKey].status < 300
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              Response: {responses[epKey].status}
-            </h3>
-            <pre className="bg-gray-200 p-2 rounded overflow-auto text-sm">
-              {JSON.stringify(responses[epKey].data, null, 2)}
-            </pre>
-          </div>
-        )}
+                                        {/* Response Preview chỉ riêng cho epKey này */}
+                                        {responses[epKey] && (
+                                            <div className="mt-4">
+                                                <h3
+                                                    className={`font-bold ${responses[epKey].status >= 200 && responses[epKey].status < 300
+                                                            ? "text-green-600"
+                                                            : "text-red-600"
+                                                        }`}
+                                                >
+                                                    Response: {responses[epKey].status}
+                                                </h3>
+                                                <pre className="bg-gray-200 p-2 rounded overflow-auto text-sm">
+                                                    {JSON.stringify(responses[epKey].data, null, 2)}
+                                                </pre>
+                                            </div>
+                                        )}
 
                                         {/* Response Schema */}
                                         {(ep.responses || []).map((respObj, methodIdx) =>
@@ -449,7 +473,7 @@ export default function ProjectManager() {
                                                             </button>
                                                             {showResMap[`${methodIdx}-${i}-${status}`] && (
                                                                 <pre className="bg-gray-50 p-2 rounded overflow-auto text-sm whitespace-pre-wrap">
-                                                                {formatResponseSchemaWithExamples(schema)}
+                                                                    {formatResponseSchemaWithExamples(schema, rootSpec)}
                                                                 </pre>
                                                             )}
                                                         </div>
