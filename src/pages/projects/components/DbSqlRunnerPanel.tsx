@@ -7,6 +7,70 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
     const [sql, setSql] = useState("");
     const [sqlResult, setSqlResult] = useState<any[]>([]);
 
+    const [file, setFile] = useState<File | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    // --- EXPORT FUNCTION ---
+    const handleExport = async (type: "json" | "sqlite") => {
+        setLoading(true);
+        setMessage(null);
+        try {
+            const res = await fetch(`/api/scripts/export?project=${project}&type=${type}`);
+            if (!res.ok) throw new Error(await res.text());
+
+            // Tạo blob để tải file
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${project}.${type}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            setMessage(`✅ Export thành công: ${project}.${type}`);
+        } catch (err: any) {
+            setMessage(`❌ Export lỗi: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // --- IMPORT FUNCTION ---
+    const handleImport = async () => {
+        if (!file) {
+            setMessage("⚠️ Vui lòng chọn file import (.json hoặc .sqlite)");
+            return;
+        }
+
+        setLoading(true);
+        setMessage(null);
+
+        const formData = new FormData();
+        formData.append("project", project);
+        formData.append("file", file);
+        formData.append("type", file.name.endsWith(".sqlite") ? "sqlite" : "json");
+
+        try {
+            const res = await fetch("/api/scripts/import", {
+                method: "POST",
+                body: formData,
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || "Import failed");
+
+            if (data.count)
+                setMessage(`✅ Import thành công ${data.count} record từ ${file.name}`);
+            else setMessage(`✅ Import SQLite thành công (${file.name})`);
+        } catch (err: any) {
+            setMessage(`❌ Import lỗi: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const previewTable = async (table: string) => {
         setSelectedTable(table);
         const res = await fetch(`/api/db/tables?project=${project}&table=${table}`);
@@ -32,7 +96,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
                 <table className="min-w-full text-xs border-collapse">
                     <thead className="bg-gray-100">
                         <tr>
-                            {Array.isArray(columns) &&  columns.map(col => (
+                            {Array.isArray(columns) && columns.map(col => (
                                 <th key={col} className="border px-2 py-1 text-left font-semibold text-gray-700">
                                     {col}
                                 </th>
@@ -62,6 +126,69 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
 
     return (
         <div className="border rounded p-4 bg-gray-50 flex flex-col overflow-y-auto">
+
+            <h2 className="font-semibold text-lg mb-3">Mock Processor Tools</h2>
+
+            {/* EXPORT SECTION */}
+            <div className="mb-4">
+                <h3 className="font-medium mb-2">Export dữ liệu</h3>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => handleExport("json")}
+                        disabled={loading}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50"
+                    >
+                        Export JSON
+                    </button>
+                    <button
+                        onClick={() => handleExport("sqlite")}
+                        disabled={loading}
+                        className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        Export SQLite
+                    </button>
+                </div>
+            </div>
+
+            {/* IMPORT SECTION */}
+            <div className="mb-4">
+                <h3 className="font-medium mb-2">Import dữ liệu</h3>
+                <div className="flex items-center gap-3">
+                    <input
+                        type="file"
+                        accept=".json,.sqlite"
+                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        className="border p-1 rounded bg-white"
+                    />
+                    <button
+                        onClick={handleImport}
+                        disabled={loading || !file}
+                        className="bg-orange-600 text-white px-3 py-1 rounded hover:bg-orange-700 disabled:opacity-50"
+                    >
+                        Import
+                    </button>
+                </div>
+            </div>
+
+            {/* STATUS / MESSAGE */}
+            {message && (
+                <div
+                    className={`mt-3 text-sm p-2 rounded ${message.startsWith("✅")
+                            ? "bg-green-100 text-green-700"
+                            : message.startsWith("❌")
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                        }`}
+                >
+                    {message}
+                </div>
+            )}
+
+            {/* LOADING STATE */}
+            {loading && (
+                <div className="mt-2 text-gray-500 text-sm animate-pulse">Đang xử lý...</div>
+            )}
+
             <h2 className="text-lg font-bold mb-4">DB Local & SQL Runner</h2>
 
             <label className="font-semibold block mb-2">Chọn bảng</label>

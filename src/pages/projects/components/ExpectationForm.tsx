@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { httpStatusCodes } from "@/statics/data/httpStatusCodes";
+import { ExpectationFormDto } from "./ExpectationCreateForm";
 
 export type Condition = {
   openParen: boolean;
@@ -27,11 +28,13 @@ export default function ExpectationForm({
   onChange,
   readOnly = false,
 }: {
-  value: ExpectForm;
-  onChange: (v: ExpectForm) => void;
+  value: ExpectationFormDto;
+  onChange: (v: ExpectationFormDto) => void;
   readOnly?: boolean;
 }) {
-    console.log(value)
+  if (!value) {
+    return <div className="text-gray-500 italic">Đang tải dữ liệu Expectation...</div>;
+  }
   const [nextLogic, setNextLogic] = useState<"AND" | "OR">("AND");
 
   const updateCondition = (index: number, key: string, val: any) => {
@@ -139,13 +142,19 @@ export default function ExpectationForm({
             onChange={(e) => updateCondition(i, "comparison", e.target.value)}
             className="border p-1 rounded"
           >
-            <option value="">-- So sánh --</option>
-            <option value="equals">=</option>
-            <option value="not_equals">≠</option>
-            <option value="contains">contains</option>
-            <option value="regex">regex</option>
-            <option value="exists">exists</option>
+            <option value="">-- Chọn phép so sánh --</option>
+            <option value="equals">Bằng (=)</option>
+            <option value="notequals">Khác (≠)</option>
+            <option value="contains">Chứa (contains)</option>
+            <option value="notcontains">Không chứa (not contains)</option>
+            <option value="greaterthan">Lớn hơn ({">"})</option>
+            <option value="greaterthanorequalto">Lớn hơn hoặc bằng (≥)</option>
+            <option value="lessthan">Nhỏ hơn (&lt;)</option>
+            <option value="lessthanorequalto">Nhỏ hơn hoặc bằng (≤)</option>
+            <option value="exists">Tồn tại (exists)</option>
+            <option value="notexists">Không tồn tại (not exists)</option>
           </select>
+
 
           <input
             disabled={readOnly}

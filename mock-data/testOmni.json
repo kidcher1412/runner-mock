@@ -1,0 +1,3770 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Default module",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "cif-business"
+    },
+    {
+      "name": "cif-kh"
+    },
+    {
+      "name": "account"
+    },
+    {
+      "name": "transfer"
+    },
+    {
+      "name": "bill"
+    },
+    {
+      "name": "document"
+    }
+  ],
+  "paths": {
+    "/customer/info/account-business": {
+      "post": {
+        "summary": "Truy vấn tt kh bằng CIF",
+        "deprecated": false,
+        "description": "Dùng để truy vấn thông tin doanh nghiệp từ corebanking theo CIF doanh nghiệp",
+        "tags": [
+          "cif-business"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Query_Business"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Query_Business",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                },
+                "example": {
+                  "responseId": "546dd867-4d0e-4269-81e8-5404e4db467a",
+                  "responseTime": "20251106102843",
+                  "errorCode": "00",
+                  "errorMsg": "",
+                  "data": {
+                    "cifNo": "cupidatat magna sint",
+                    "cifRegDate": "12/05/25",
+                    "clientNameVn": "Fannie Turcotte",
+                    "clientNameEn": "Ken Mohr",
+                    "shortName": "Lela Corwin",
+                    "mobilePhone": "025886259",
+                    "email": "Andy84@yahoo.com",
+                    "businessRegNumber": "30",
+                    "businessRegDate": "16/10/24",
+                    "businessExpiryDate": "07/11/24",
+                    "taxCode": "61",
+                    "address": "Oregon West Salvatoreberg Jefferson County 55467 Rod Island Suite 142",
+                    "businessTypeCode": "22",
+                    "businessType": "mollit",
+                    "legalRepresentative": "et consequat in dolor",
+                    "chiefAccountant": "sit ad sunt reprehenderit",
+                    "branchRegCif": "amet Excepteur",
+                    "stautusCIF": "B",
+                    "clientType": "KH cá nhân",
+                    "clientTypeCode": "24"
+                  },
+                  "signature": "cillum magna"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/customer/info/account-personal": {
+      "post": {
+        "summary": "Truy vấn tt kh bằng CIF cá nhân",
+        "deprecated": false,
+        "description": "Truy vấn tài khoản cá nhân bằng CIF",
+        "tags": [
+          "cif-kh"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Query_Personal"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Query_Personal",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                },
+                "example": {
+                  "responseId": "138c97a6-05b1-4ad2-81da-02aa1f943067",
+                  "responseTime": "20251101211521",
+                  "errorCode": "00",
+                  "errorMsg": "",
+                  "data": {
+                    "cifNo": "150554892458",
+                    "cifRegDate": "16/06/25",
+                    "clientName": "cfs-38475",
+                    "mobilePhone": "03598596599",
+                    "email": "Liliana_Schulist@hotmail.com",
+                    "address": "Vermont Nelsland Perry County 7740 Eric Glens Apt. 651",
+                    "globalIdType": "minim",
+                    "globalId": "nostrud ullamco sunt cillum Excepteur",
+                    "dateOfIssuance": "05/04/25",
+                    "placeOfIssuance": "deserunt",
+                    "idExpiryDate": "28/03/25",
+                    "stautusCIF": "A",
+                    "clientTypeCode": "77",
+                    "clientType": "ut ipsum",
+                    "branchRegCif": "ut",
+                    "dateOfBirth": "12/02/2026",
+                    "nationality": "ex"
+                  },
+                  "signature": "..."
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/account/info/get-balance-available": {
+      "post": {
+        "summary": "Lấy tổng số dư khả dụng",
+        "deprecated": false,
+        "description": "Lấy thông tin tổng số dư khả dụng các tài khoản VND.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Account_Available_Balance"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "description": "Dữ liệu hệ thống trả về",
+                      "$ref": "#/components/schemas/Res_Account_Available_Balance",
+                      "nullable": true
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/account/payment/get-account-info": {
+      "post": {
+        "summary": "Lấy chi tiết TK thanh toán",
+        "deprecated": false,
+        "description": "Lấy chi tiết thông tin tài khoản thanh toán của KH.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Get_Detail_Payment"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Get_Detail_Payment",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/account/payment-savings/get-accounts": {
+      "post": {
+        "summary": "Lấy DS All tài khoản",
+        "deprecated": false,
+        "description": "Lấy thông tin chi tiết của tài khoản (tk thanh toán, tk tiền gửi) khách hàng.",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Get_All"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Get_All",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/account/savings/get-account-info": {
+      "post": {
+        "summary": "Lấy Chi tiết tài khoản tiền gửi",
+        "deprecated": false,
+        "description": "Truy vấn thông tin tài khoản tiền gửi của KH",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Get_Saving_Account"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Get_Saving_Account",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/account/source/get-accounts": {
+      "post": {
+        "summary": "Lấy ds tk nguồn",
+        "deprecated": false,
+        "description": "Lấy danh sách các tài khoản cho phép thực hiện trích nợ đối với các giao dịch tài chính(tài khoản thanh toán)",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Get_Source_Account"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Get_Source_Account",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/account/info/get-ben-acct": {
+      "post": {
+        "summary": "Truy vấn tài khoản thụ hưởng SGB",
+        "deprecated": false,
+        "description": "Lấy thông tin tài khoản thụ hưởng, dùng trong chuyển khoản nhanh qua (số tài khoản)",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Get_Ben_Acct"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Get_Ben_Acct",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/account/info/get-transaction-history": {
+      "post": {
+        "summary": "Lịch sử giao dịch",
+        "deprecated": false,
+        "description": "Lấy thông tin lịch sử giao dịch của khách hàng.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Get_Transaction_History"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "description": "Dữ liệu hệ thống trả về",
+                      "type": "object",
+                      "properties": {
+                        "totalRecords": {
+                          "type": "string",
+                          "description": "Tổng số bản ghi trả về"
+                        },
+                        "currentPage": {
+                          "type": "string",
+                          "description": "Trang đang xem"
+                        },
+                        "totalBalFirst": {
+                          "type": "number",
+                          "description": "Tổng số dư đầu ký truy vấn"
+                        },
+                        "totalBalEnd": {
+                          "type": "number",
+                          "description": "Tổng số dư cuối kỳ truy vấn"
+                        },
+                        "acctNo": {
+                          "type": "string",
+                          "description": "Tài khoản"
+                        },
+                        "accountName": {
+                          "type": "string",
+                          "description": "Tên chủ tài khoản"
+                        },
+                        "trans": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Dto_Trans_Get-Transaction-History"
+                          },
+                          "description": "Danh sách giao dịch"
+                        }
+                      },
+                      "required": [
+                        "totalRecords",
+                        "currentPage",
+                        "totalBalFirst",
+                        "totalBalEnd",
+                        "acctNo",
+                        "accountName",
+                        "trans"
+                      ],
+                      "nullable": true
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/payment/internal/do-transfer": {
+      "post": {
+        "summary": "Chuyển khoản nội bộ",
+        "deprecated": false,
+        "description": "Thông tin hạch toán giao dịch chuyển khoản nội bộ",
+        "tags": [
+          "transfer"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Internal_Do_Transfer"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Internal_Do_Transfer",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/payment/citad/do-transfer": {
+      "post": {
+        "summary": "Chuyển khoản Citad",
+        "deprecated": false,
+        "description": "Thông tin giao dịch chuyển khoản CITAD",
+        "tags": [
+          "transfer"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Citad_Do_Transfer"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Citad_Do_Transfer",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/payment/bill/do-transfer": {
+      "post": {
+        "summary": "Chuyển khoản Bill VNPAY",
+        "deprecated": false,
+        "description": "Hạch toán thu hộ cho GD thanh toán hóa đơn",
+        "tags": [
+          "bill"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Bill_Do_Transfer"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Bill_Do_Transfer",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/payment/bill/do-refund": {
+      "post": {
+        "summary": "Đảo tiền",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Bill_Do_Refund"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Bill_Do_Refund",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/document/credit-advice/export": {
+      "post": {
+        "summary": "In giấy báo nợ, có",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "document"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "acctNo": {
+                        "type": "string",
+                        "description": "Số tài khoản của KH SGB"
+                      },
+                      "seqNo": {
+                        "type": "string",
+                        "description": "Số tham chiếu giao dịch "
+                      }
+                    },
+                    "description": "Dữ liệu truy vấn của request",
+                    "required": [
+                      "acctNo",
+                      "seqNo"
+                    ]
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_document_credit_advice_export",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/document/payment-order/export": {
+      "post": {
+        "summary": "Ủy nhiệm chi",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "document"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_document_credit_advice_export"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_document_payment_order_export",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/document/statement/export": {
+      "post": {
+        "summary": "Sổ phụ",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "document"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_document_statement_export"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_document_statement_export",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/document/statement-detailed/export": {
+      "post": {
+        "summary": "Sao kê",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Mã request "
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Thời gian request"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+                  },
+                  "data": {
+                    "description": "Dữ liệu truy vấn của request",
+                    "$ref": "#/components/schemas/Req_Document_Statement-Detailed_Export"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Chữ ký của dữ liệu"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data",
+                  "signature"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseId": {
+                      "type": "string",
+                      "description": "Mã phản hồi"
+                    },
+                    "responseTime": {
+                      "type": "string",
+                      "description": "Thời gian phản hồi"
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "description": "Mã lỗi",
+                      "enum": [
+                        "00",
+                        "01"
+                      ]
+                    },
+                    "errorMsg": {
+                      "type": "string",
+                      "description": "Mô tả lỗi "
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Res_Document_Statement-Detailed_Export",
+                      "nullable": true,
+                      "description": "Dữ liệu hệ thống trả về"
+                    },
+                    "signature": {
+                      "type": "string",
+                      "description": "Chữ ký của dữ liệu"
+                    }
+                  },
+                  "required": [
+                    "responseId",
+                    "responseTime",
+                    "errorCode",
+                    "errorMsg",
+                    "data",
+                    "signature"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Req_Query_Personal": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng cá nhân"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Query_Personal": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng Cá nhân"
+          },
+          "cifRegDate": {
+            "type": "string",
+            "description": "Ngày đăng ký mở CIF (dd/MM/yy)"
+          },
+          "clientName": {
+            "type": "string",
+            "description": "Tên khách hàng "
+          },
+          "mobilePhone": {
+            "type": "string",
+            "description": "Số điện thoại liên hệ"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email liên hệ"
+          },
+          "address": {
+            "type": "string",
+            "description": "Địa chỉ liên hệ"
+          },
+          "globalIdType": {
+            "type": "string",
+            "description": "Loại giấy tờ "
+          },
+          "globalId": {
+            "type": "string",
+            "description": "Số giấy tờ"
+          },
+          "dateOfIssuance": {
+            "type": "string",
+            "description": "Ngày cấp "
+          },
+          "placeOfIssuance": {
+            "type": "string",
+            "description": "Nơi cấp"
+          },
+          "idExpiryDate": {
+            "type": "string",
+            "description": "Ngày hết hạn"
+          },
+          "stautusCIF": {
+            "type": "string",
+            "description": "Trạng thái CIF",
+            "enum": [
+              "A",
+              "B"
+            ]
+          },
+          "clientTypeCode": {
+            "type": "string",
+            "description": "Mã loại khách hàng (code)"
+          },
+          "clientType": {
+            "type": "string",
+            "description": "Mô tả loại khách hàng (KH cá nhân, KH doanh nghiệp, KH VIP..)"
+          },
+          "branchRegCif": {
+            "type": "string",
+            "description": "CN/PGD đăng ký CIF"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "description": "Ngày tháng năm sinh (dd/MM/yyyy)"
+          },
+          "nationality": {
+            "type": "string",
+            "description": "Quốc tịch"
+          }
+        },
+        "required": [
+          "cifNo",
+          "cifRegDate",
+          "clientName",
+          "mobilePhone",
+          "email",
+          "globalIdType",
+          "globalId",
+          "dateOfIssuance",
+          "placeOfIssuance",
+          "idExpiryDate",
+          "stautusCIF",
+          "clientTypeCode",
+          "clientType",
+          "branchRegCif",
+          "dateOfBirth",
+          "nationality"
+        ]
+      },
+      "Req_Query_Business": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng Doanh nghiệp"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Query_Business": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng Doanh nghiệp"
+          },
+          "cifRegDate": {
+            "type": "string",
+            "description": "Ngày đăng ký mở CIF"
+          },
+          "clientNameVn": {
+            "type": "string",
+            "description": "Tên khách hàng (VN)"
+          },
+          "clientNameEn": {
+            "type": "string",
+            "description": "Tên khách hàng (EN)"
+          },
+          "mobilePhone": {
+            "type": "string",
+            "description": "Số điện thoại"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email liên hệ"
+          },
+          "businessRegNumber": {
+            "type": "string",
+            "description": "Số đăng ký kinh doanh"
+          },
+          "businessRegDate": {
+            "type": "string",
+            "description": "Ngày cấp"
+          },
+          "businessExpiryDate": {
+            "type": "string",
+            "description": "Ngày hết hạn số đăng ký kinh doanh"
+          },
+          "taxCode": {
+            "type": "string",
+            "description": "Mã số thuế"
+          },
+          "address": {
+            "type": "string",
+            "description": "Địa chỉ liên hệ"
+          },
+          "legalRepresentative": {
+            "type": "string",
+            "description": "Người đại diện hợp pháp (Name)"
+          },
+          "chiefAccountant": {
+            "type": "string",
+            "description": "Kế toán trưởng (Name)"
+          },
+          "branchRegCif": {
+            "type": "string",
+            "description": "CN/PGD đăng ký CIF"
+          },
+          "stautusCIF": {
+            "type": "string",
+            "description": "Trạng thái CIF",
+            "enum": [
+              "A",
+              "B"
+            ]
+          },
+          "clientType": {
+            "type": "string",
+            "description": "Tên loại khách hàng"
+          },
+          "clientTypeCode": {
+            "type": "string",
+            "description": "Mã loại khách hàng (code)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "cifRegDate",
+          "clientNameVn",
+          "clientNameEn",
+          "mobilePhone",
+          "email",
+          "businessRegNumber",
+          "businessRegDate",
+          "businessExpiryDate",
+          "taxCode",
+          "address",
+          "legalRepresentative",
+          "chiefAccountant",
+          "branchRegCif",
+          "stautusCIF",
+          "clientType",
+          "clientTypeCode"
+        ]
+      },
+      "DTO_Account_Item": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Tài khoản"
+          },
+          "accountGroupCode": {
+            "type": "string",
+            "description": "Mã nhóm tài khoản"
+          },
+          "accountGroupName": {
+            "type": "string",
+            "description": "Tên nhóm tài khoản (acct type)",
+            "enum": [
+              "U",
+              "Y"
+            ]
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Tên chủ tài khoản"
+          },
+          "accountCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "accountBalance": {
+            "type": "number",
+            "description": "Số dư tài khoản"
+          },
+          "accountBalanceAvailable": {
+            "type": "number",
+            "description": "Số dư khả dụng"
+          },
+          "status": {
+            "type": "string",
+            "description": "Trạng thái"
+          },
+          "acctRegDate": {
+            "type": "string",
+            "description": "Ngày mở tài khoản"
+          },
+          "branchCode": {
+            "type": "string",
+            "description": "Chi nhánh mở tài khoản"
+          }
+        },
+        "required": [
+          "accountGroupCode",
+          "accountGroupName",
+          "accountName",
+          "accountCCY",
+          "accountBalance",
+          "accountBalanceAvailable",
+          "status",
+          "acctRegDate",
+          "branchCode",
+          "acctNo"
+        ],
+        "description": "Danh sách các tài khoản"
+      },
+      "DTO_Account_Source_Item": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Tài khoản"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Tên chủ tài khoản"
+          },
+          "accountCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "accountBalance": {
+            "type": "number",
+            "description": "Số dư tài khoản"
+          },
+          "accountBalanceAvailable": {
+            "type": "number",
+            "description": "Số dư khả dụng"
+          },
+          "status": {
+            "type": "string",
+            "description": "Trạng thái"
+          },
+          "acctRegDate": {
+            "type": "string",
+            "description": "Ngày mở tài khoản"
+          },
+          "branchCode": {
+            "type": "string",
+            "description": "Chi nhánh mở tài khoản"
+          },
+          "productName": {
+            "type": "string",
+            "description": "Tên sản phẩm"
+          },
+          "crDr": {
+            "type": "string",
+            "enum": [
+              "C",
+              "D"
+            ],
+            "description": "Cờ thể hiện trạng thái khóa giao dịch của tài khoản"
+          }
+        },
+        "required": [
+          "accountName",
+          "accountCCY",
+          "accountBalance",
+          "accountBalanceAvailable",
+          "status",
+          "acctRegDate",
+          "branchCode",
+          "acctNo",
+          "productName",
+          "crDr"
+        ],
+        "description": "Danh sách các tài khoản"
+      },
+      "Res_Account_Available_Balance": {
+        "type": "object",
+        "properties": {
+          "totalAvailableBalance": {
+            "type": "number",
+            "description": "Tổng số dư khả dụng tất cả TKTT (không bao gồm ngoại tệ) ",
+            "minimum": 0
+          },
+          "totalDepositBalance": {
+            "type": "number",
+            "description": "Tổng số dư hiện có của TK tiền gửi VND",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "totalAvailableBalance",
+          "totalDepositBalance"
+        ]
+      },
+      "Req_Get_All": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "accountGroupName": {
+            "type": "string",
+            "description": "Tên nhóm tài khoản (acct type)"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Tổng số trang"
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Tổng số dòng tối đa trên 1 trang"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "totalPages",
+          "pageSize",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Get_All": {
+        "type": "object",
+        "properties": {
+          "totalRecords": {
+            "type": "string"
+          },
+          "currentPage": {
+            "type": "string"
+          },
+          "cifNo": {
+            "type": "string"
+          },
+          "account": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DTO_Account_Item"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "totalRecords",
+          "currentPage",
+          "cifNo",
+          "account"
+        ]
+      },
+      "Req_Get_Detail_Payment": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản"
+          },
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "acctNo",
+          "cifNo",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Get_Detail_Payment": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Tên Tài khoản"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Mã loại khách hàng (code)"
+          },
+          "clientTypeCode": {
+            "type": "string",
+            "description": "Mã loại khách hàng (code)"
+          },
+          "cifNo": {
+            "type": "string",
+            "description": "Số Cif"
+          },
+          "accountCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "accountStatus": {
+            "type": "string",
+            "description": "Trạng thái tài khoản"
+          },
+          "acctRegDate": {
+            "type": "string",
+            "description": "Ngày mở tài khoản"
+          },
+          "branchCode": {
+            "type": "string",
+            "description": "Chi nhánh mở tài khoản"
+          },
+          "productName": {
+            "type": "string",
+            "description": "Mã loại sp quy định tại bank? (Tiền gửi không kỳ hạn, Cá nhân trong nước)"
+          },
+          "isPrimaryAccountHolder": {
+            "type": "boolean",
+            "description": "Có đúng là chủ tài khoản?"
+          },
+          "isJointAccountHolder": {
+            "type": "boolean",
+            "description": "Có phải tài khoản đồng chủ?"
+          },
+          "accountBalanceAvailable": {
+            "type": "number",
+            "description": "Số dư khả dụng"
+          },
+          "accountBalance": {
+            "type": "number",
+            "description": "Số dư tài khoản"
+          },
+          "acountBlocked": {
+            "type": "number",
+            "description": "Số tiền bị phong tỏa"
+          },
+          "interestRate": {
+            "type": "string",
+            "description": "Lãi suất áp dụng cho tài khoản"
+          }
+        },
+        "required": [
+          "acctNo",
+          "accountName",
+          "clientTypeCode",
+          "cifNo",
+          "accountCCY",
+          "accountStatus",
+          "acctRegDate",
+          "branchCode",
+          "productName",
+          "isPrimaryAccountHolder",
+          "isJointAccountHolder",
+          "accountBalanceAvailable",
+          "accountBalance",
+          "acountBlocked",
+          "interestRate"
+        ],
+        "description": "Số tài khoản"
+      },
+      "Req_Get_Saving_Account": {
+        "type": "object",
+        "properties": {
+          "acctNoSavings": {
+            "type": "string",
+            "description": "Số tài khoản "
+          },
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "acctNoSavings",
+          "cifNo",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Get_Saving_Account": {
+        "type": "object",
+        "properties": {
+          "acctNoSavings": {
+            "type": "string",
+            "description": "Số tài khoản tiền gửi"
+          },
+          "accountCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "accountStatus": {
+            "type": "string",
+            "description": "Trạng thái tài khoản"
+          },
+          "acctRegDate": {
+            "type": "string",
+            "description": "Ngày mở tài khoản"
+          },
+          "branchCode": {
+            "type": "string",
+            "description": "Chi nhánh mở tài khoản"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Mã loại khách hàng (code)"
+          },
+          "cifNo": {
+            "type": "string",
+            "description": "Số Cif"
+          },
+          "clientTypeCode": {
+            "type": "string",
+            "description": "Mã loại khách hàng (code)"
+          },
+          "isPrimaryAccountHolder": {
+            "type": "boolean",
+            "description": "Có đúng là chủ tài khoản?"
+          },
+          "isJointAccountHolder": {
+            "type": "boolean",
+            "description": "Có phải tài khoản đồng chủ?"
+          },
+          "depositBalance": {
+            "type": "number",
+            "description": "Số tiền gốc gửi "
+          },
+          "actualBalance": {
+            "type": "number",
+            "description": "Số dư thực tế (bao gồm tiền lãi + số tiền phong tỏa)"
+          },
+          "intRate": {
+            "type": "string",
+            "description": "Lãi suất tiết kiệm (Giá trị lãi suất khi mở tài khoản tiết kiệm)"
+          },
+          "maturityDate": {
+            "type": "string",
+            "description": "Ngày đến hạn tất toán/Ngày đáo hạn ((dd/MM/yyyy))"
+          },
+          "productName": {
+            "type": "string",
+            "description": "Mã loại sp quy định tại bank? (Tiền gửi không kỳ hạn, Cá nhân trong nước)"
+          },
+          "term": {
+            "type": "string",
+            "description": "Kỳ hạn tiết kiệm"
+          },
+          "termType": {
+            "type": "string",
+            "description": "Loại kỳ hạn (ngày/tuần/tháng/năm)"
+          },
+          "interestPaymentMethod": {
+            "type": "string",
+            "description": "Phương thức lãnh lãi"
+          },
+          "interestCalculationMethod": {
+            "type": "string",
+            "description": "Hình thức tính lãi"
+          },
+          "rolloverMethod": {
+            "type": "string",
+            "description": "Phương thức tái tục"
+          },
+          "acctNoPayout": {
+            "type": "string",
+            "description": "Số tài khoản nhận tiền khi tất toán"
+          },
+          "totalInterestAtMaturity": {
+            "type": "number",
+            "description": "Tổng tiền lãi nếu tất toán đúng hạn"
+          },
+          "earlyWithdrawalRate": {
+            "type": "string",
+            "description": "Tỷ lệ lãi nếu tất toán trước hạn"
+          },
+          "effectDate": {
+            "type": "string",
+            "description": "Ngày hiệu lực của tài khoản tiền gửi"
+          }
+        },
+        "required": [
+          "acctNoSavings",
+          "accountName",
+          "clientTypeCode",
+          "cifNo",
+          "accountCCY",
+          "accountStatus",
+          "acctRegDate",
+          "branchCode",
+          "productName",
+          "isPrimaryAccountHolder",
+          "isJointAccountHolder",
+          "depositBalance",
+          "actualBalance",
+          "intRate",
+          "maturityDate",
+          "term",
+          "termType",
+          "interestPaymentMethod",
+          "interestCalculationMethod",
+          "rolloverMethod",
+          "acctNoPayout",
+          "totalInterestAtMaturity",
+          "earlyWithdrawalRate",
+          "effectDate"
+        ],
+        "description": "Số tài khoản"
+      },
+      "Req_Get_Source_Account": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "totalPages": {
+            "type": "string",
+            "description": "Tổng số trang"
+          },
+          "pageSize": {
+            "type": "string",
+            "description": "Tổng số dòng tối đa trên 1 trang"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "totalPages",
+          "pageSize",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Get_Source_Account": {
+        "type": "object",
+        "properties": {
+          "totalRecords": {
+            "type": "string"
+          },
+          "currentPage": {
+            "type": "string"
+          },
+          "cifNo": {
+            "type": "string"
+          },
+          "account": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DTO_Account_Source_Item"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "totalRecords",
+          "currentPage",
+          "cifNo",
+          "account"
+        ]
+      },
+      "Req_Account_Available_Balance": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng Doanh nghiệp"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranDate"
+        ]
+      },
+      "Dto_Trans_Get-Transaction-History": {
+        "type": "object",
+        "properties": {
+          "dateTime": {
+            "type": "string",
+            "description": "Ngày giao dịch (yyyyMMddHHmmss)"
+          },
+          "crDr": {
+            "type": "string",
+            "description": "Ghi nợ/ Ghi có"
+          },
+          "tranAmt": {
+            "type": "number",
+            "description": "Số tiền giao dịch"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Diễn giải giao dịch"
+          },
+          "postingDate": {
+            "type": "string",
+            "description": "Ngày giao dịch được ghi nhận tại hệ thống sao kê"
+          },
+          "accountCcy": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "balAfterTxn": {
+            "type": "number",
+            "description": "Số dư tài khoản sau mỗi giao dịch"
+          },
+          "seqNo": {
+            "type": "string",
+            "description": "Số chứng từ giao dịch"
+          },
+          "refNo": {
+            "type": "string",
+            "description": "Số tham chiếu trong giao dịch liên ngân hàng/ qua đối tác ngoài bank"
+          }
+        },
+        "required": [
+          "dateTime",
+          "crDr",
+          "tranAmt",
+          "narrative",
+          "postingDate",
+          "accountCcy",
+          "balAfterTxn",
+          "seqNo",
+          "refNo"
+        ]
+      },
+      "Dto_Document_Statement-Detailed_Export": {
+        "type": "object",
+        "properties": {
+          "seqNo": {
+            "type": "string",
+            "description": "Số CT"
+          },
+          "transDate": {
+            "type": "string",
+            "description": "Ngày giao dịch (dd/MM/yyyy)"
+          },
+          "transType": {
+            "type": "string",
+            "description": "Loại GD"
+          },
+          "debitAmount": {
+            "type": "number",
+            "description": "Phát sinh nợ"
+          },
+          "creditAmount": {
+            "type": "number",
+            "description": "Phát sinh có"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Nội dung"
+          },
+          "balBeforeTxn": {
+            "type": "number",
+            "description": "Số dư trước GD"
+          },
+          "balAfterTxn": {
+            "type": "number",
+            "description": "Số dư sau GD"
+          }
+        },
+        "required": [
+          "seqNo",
+          "transDate",
+          "transType",
+          "debitAmount",
+          "creditAmount",
+          "narrative",
+          "balBeforeTxn",
+          "balAfterTxn"
+        ]
+      },
+      "Req_Get_Ben_Acct": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản của KH thụ hưởng"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi msg"
+          }
+        },
+        "required": [
+          "acctNo",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Get_Ben_Acct": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản của KH thụ hưởng"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Tên KH thụ hưởng"
+          },
+          "accountCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "status": {
+            "type": "number",
+            "description": "Trạng thái"
+          },
+          "acctRegDate": {
+            "type": "string",
+            "description": "Ngày mở tài khoản"
+          },
+          "branchCode": {
+            "type": "string",
+            "description": "Chi nhánh mở tài khoản"
+          },
+          "productName": {
+            "type": "string",
+            "description": "Tên sản phẩm"
+          },
+          "clientTypeCode": {
+            "type": "string",
+            "description": "Mã loại khách hàng (code)"
+          },
+          "clientType": {
+            "type": "string",
+            "description": "Tên loại khách hàng"
+          },
+          "globalIdType": {
+            "type": "string",
+            "description": "Loại giấy tờ"
+          },
+          "globalId": {
+            "type": "string",
+            "description": "Số giấy tờ"
+          },
+          "dateOfIssuance": {
+            "type": "string",
+            "description": "Ngày cấp"
+          },
+          "idExpiryDate": {
+            "type": "string",
+            "description": "Ngày hết hạn"
+          },
+          "crDr": {
+            "type": "string",
+            "description": "Cờ thể hiện trạng thái khóa giao dịch của tài khoản"
+          }
+        },
+        "required": [
+          "cifNo",
+          "acctNo",
+          "accountName",
+          "accountCCY",
+          "status",
+          "acctRegDate",
+          "branchCode",
+          "productName",
+          "clientTypeCode",
+          "clientType",
+          "globalIdType",
+          "globalId",
+          "dateOfIssuance",
+          "idExpiryDate",
+          "crDr"
+        ]
+      },
+      "Req_Get_Transaction_History": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản"
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "Ngày bắt đầu lọc"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "Ngày kết thúc lọc"
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "Sắp xếp tăng và giảm dần"
+          },
+          "totalPages": {
+            "type": "string",
+            "description": "Tổng số trang"
+          },
+          "pageSize": {
+            "type": "string",
+            "description": "Tổng số dòng tối đa trên 1 trang"
+          },
+          "transactionType": {
+            "type": "string",
+            "description": "Loại GD"
+          }
+        },
+        "required": [
+          "acctNo"
+        ]
+      },
+      "Res_Get_Transaction_History": {
+        "type": "object",
+        "properties": {
+          "totalRecords": {
+            "type": "string",
+            "description": "Tổng số bản ghi trả về"
+          },
+          "currentPage": {
+            "type": "string",
+            "description": "Trang đang xem"
+          },
+          "totalBalFirst": {
+            "type": "number",
+            "description": "Tổng số dư đầu ký truy vấn"
+          },
+          "totalBalEnd": {
+            "type": "number",
+            "description": "Tổng số dư cuối kỳ truy vấn"
+          },
+          "acctNo": {
+            "type": "string",
+            "description": "Tài khoản"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Tên chủ tài khoản"
+          },
+          "trans": {
+            "description": "Danh sách giao dịch",
+            "$ref": "#/components/schemas/Dto_Trans_Get-Transaction-History"
+          }
+        },
+        "required": [
+          "totalRecords",
+          "currentPage",
+          "totalBalFirst",
+          "totalBalEnd",
+          "acctNo",
+          "accountName",
+          "trans"
+        ]
+      },
+      "Req_Internal_Do_Transfer": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "partnerTranId": {
+            "type": "string",
+            "description": "Mã tham chiếu giao dịch (chống trùng lắp thông tin)"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Số tiền chuyển khoản"
+          },
+          "txnCCY": {
+            "type": "string",
+            "description": "Loại tiền giao dịch"
+          },
+          "txnFee": {
+            "type": "number",
+            "description": "Phí ct"
+          },
+          "txnTax": {
+            "type": "number",
+            "description": "Thuế ct"
+          },
+          "fromAcct": {
+            "type": "string",
+            "description": "Số tài khoản nguồn"
+          },
+          "toAcct": {
+            "type": "string",
+            "description": "Số tài khoản của KH thụ hưởng"
+          },
+          "benName": {
+            "type": "string",
+            "description": "Tên KH thụ hưởng"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Nội dung giao dịch"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          },
+          "channel": {
+            "type": "string",
+            "description": "Kênh giao dịch"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranId",
+          "amount",
+          "txnCCY",
+          "txnFee",
+          "txnTax",
+          "fromAcct",
+          "toAcct",
+          "benName",
+          "narrative",
+          "partnerTranDate",
+          "channel"
+        ]
+      },
+      "Res_Internal_Do_Transfer": {
+        "type": "object",
+        "properties": {
+          "bankTranId": {
+            "type": "string",
+            "description": "Mã giao dịch ghi nhận tại ngân hàng"
+          },
+          "bankTranDate": {
+            "type": "string",
+            "description": "Thời gian ghi nhận tại Ngân hàng"
+          }
+        },
+        "required": [
+          "bankTranId",
+          "bankTranDate"
+        ]
+      },
+      "Req_Citad_Do_Transfer": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "partnerTranId": {
+            "type": "string",
+            "description": "Mã tham chiếu giao dịch (chống trùng lắp thông tin)"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Số tiền chuyển khoản"
+          },
+          "txnFee": {
+            "type": "number",
+            "description": "Phí ct"
+          },
+          "txnTax": {
+            "type": "number",
+            "description": "Thuế ct"
+          },
+          "fromAcct": {
+            "type": "string",
+            "description": "Số tài khoản nguồn"
+          },
+          "toAcct": {
+            "type": "string",
+            "description": "Số tài khoản của KH thụ hưởng"
+          },
+          "benName": {
+            "type": "string",
+            "description": "Tên KH thụ hưởng"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Nội dung giao dịch"
+          },
+          "bankCode": {
+            "type": "string",
+            "description": "Mã ngân hàng hưởng { A CHAU (ACB); AN BINH (ABBANK), BAN VIET (VIET CAPITAL BANK),…}"
+          },
+          "cityCode": {
+            "type": "string",
+            "description": "Tỉnh/thành phố"
+          },
+          "branchCode": {
+            "type": "string",
+            "description": "Tên/Mã chi nhánh"
+          },
+          "citadCode": {
+            "type": "string",
+            "description": "Mã Citad của Ngân hàng hưởng"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          },
+          "ourInd": {
+            "type": "string",
+            "description": "Mô tả người chịu phí"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranId",
+          "amount",
+          "txnFee",
+          "txnTax",
+          "fromAcct",
+          "toAcct",
+          "benName",
+          "narrative",
+          "bankCode",
+          "cityCode",
+          "branchCode",
+          "citadCode",
+          "partnerTranDate",
+          "ourInd"
+        ]
+      },
+      "Res_Citad_Do_Transfer": {
+        "type": "object",
+        "properties": {
+          "bankTranId": {
+            "type": "string",
+            "description": "Mã giao dịch ghi nhận tại ngân hàng"
+          },
+          "bankTranDate": {
+            "type": "string",
+            "description": "Thời gian ghi nhận tại Ngân hàng"
+          }
+        },
+        "required": [
+          "bankTranId",
+          "bankTranDate"
+        ]
+      },
+      "Req_Bill_Do_Transfer": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "partnerTranId": {
+            "type": "string",
+            "description": "Mã tham chiếu giao dịch (chống trùng lắp thông tin)"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Số tiền chuyển khoản"
+          },
+          "txnFee": {
+            "type": "number",
+            "description": "Phí giao dịch (Omni)"
+          },
+          "txnTax": {
+            "type": "number",
+            "description": "Thuế  GD Omni"
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "Kênh giao dịch"
+          },
+          "orderId": {
+            "type": "string",
+            "description": "Mã hóa đơn do VNPAY quản lý"
+          },
+          "fromAcct": {
+            "type": "string",
+            "description": "Số tài khoản nguồn"
+          },
+          "toAcct": {
+            "type": "string",
+            "description": "Số tài khoản của KH thụ hưởng"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Nội dung giao dịch"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranId",
+          "amount",
+          "serviceType",
+          "orderId",
+          "fromAcct",
+          "toAcct",
+          "narrative",
+          "partnerTranDate",
+          "txnTax",
+          "txnFee"
+        ]
+      },
+      "Res_Bill_Do_Transfer": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "bankTranId": {
+            "type": "string",
+            "description": "Mã giao dịch ghi nhận tại ngân hàng"
+          },
+          "bankTranDate": {
+            "type": "string",
+            "description": "Thời gian ghi nhận tại Ngân hàng"
+          }
+        },
+        "required": [
+          "cifNo",
+          "bankTranId",
+          "bankTranDate"
+        ]
+      },
+      "Req_Bill_Do_Refund": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "partnerTranId": {
+            "type": "string",
+            "description": "Mã tham chiếu giao dịch  gốc cần revert"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Diễn giải giao dịch"
+          },
+          "bankTranId": {
+            "type": "string",
+            "description": "Mã giao dịch của ngân hàng trả về cho VNPAY ở giao dịch gốc (giao dịch confirm)"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Số tiền chuyển khoản"
+          },
+          "txnFee": {
+            "type": "number",
+            "description": "Phí giao dịch (Omni)"
+          },
+          "txnTax": {
+            "type": "number",
+            "description": "Thuế  GD Omni"
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "Kênh giao dịch"
+          },
+          "orderId": {
+            "type": "string",
+            "description": "Mã hóa đơn do VNPAY quản lý"
+          },
+          "fromAcct": {
+            "type": "string",
+            "description": "Số tài khoản Nợ"
+          },
+          "toAcct": {
+            "type": "string",
+            "description": "Số tài khoản có"
+          },
+          "partnerTranDate": {
+            "type": "string",
+            "description": "Thời gian gửi request (yyyyMMddHHmmss)"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranId",
+          "narrative",
+          "bankTranId",
+          "amount",
+          "txnFee",
+          "txnTax",
+          "serviceType",
+          "orderId",
+          "fromAcct",
+          "toAcct",
+          "partnerTranDate"
+        ]
+      },
+      "Res_Bill_Do_Refund": {
+        "type": "object",
+        "properties": {
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng"
+          },
+          "partnerTranId": {
+            "type": "string",
+            "description": "Mã tham chiếu giao dịch (chống trùng lắp thông tin)"
+          },
+          "bankTranId": {
+            "type": "string",
+            "description": "Mã giao dịch ghi nhận tại ngân hàng"
+          },
+          "bankTranDate": {
+            "type": "string",
+            "description": "Thời gian ghi nhận tại Ngân hàng"
+          }
+        },
+        "required": [
+          "cifNo",
+          "partnerTranId",
+          "bankTranId",
+          "bankTranDate"
+        ]
+      },
+      "Req_Document_Statement-Detailed_Export": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản của KH SGB"
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "Ngày bắt đầu lọc"
+          },
+          "toDate": {
+            "type": "string",
+            "description": "Ngày kết thúc lọc"
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "Sắp xếp tăng và giảm dần"
+          }
+        },
+        "required": [
+          "acctNo",
+          "sortOrder"
+        ]
+      },
+      "Res_Document_Statement-Detailed_Export": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản"
+          },
+          "acctName": {
+            "type": "string",
+            "description": "Tên chủ tài khoản"
+          },
+          "acctType": {
+            "type": "string",
+            "description": "Loại tài khoản"
+          },
+          "acctCcy": {
+            "type": "string",
+            "description": "Loại TK/ Loại tiền"
+          },
+          "openingBalance": {
+            "type": "number",
+            "description": "Số dư đầu ngày(dd-MM-yyyy)"
+          },
+          "endingBalance": {
+            "type": "number",
+            "description": "Số dư cuối ngày(dd-MM-yyyy)"
+          },
+          "trans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dto_Document_Statement-Detailed_Export"
+            },
+            "description": "Danh sách giao dịch"
+          }
+        },
+        "required": [
+          "acctNo",
+          "acctCcy",
+          "openingBalance",
+          "endingBalance",
+          "trans",
+          "acctName",
+          "acctType"
+        ]
+      },
+      "Req_document_credit_advice_export": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản của KH SGB"
+          },
+          "seqNo": {
+            "type": "string",
+            "description": "Số tham chiếu giao dịch "
+          }
+        },
+        "required": [
+          "acctNo",
+          "seqNo"
+        ]
+      },
+      "Res_document_credit_advice_export": {
+        "type": "object",
+        "properties": {
+          "seqNo": {
+            "type": "string",
+            "description": "Số tham chiếu giao dịch"
+          },
+          "tranType": {
+            "type": "string",
+            "description": "Mã giao dịch"
+          },
+          "mantInd": {
+            "type": "string",
+            "enum": [
+              "C",
+              "D"
+            ],
+            "description": "Loại nợ hay có"
+          },
+          "transDate": {
+            "type": "string",
+            "description": "Ngày giao dịch (dd/MM/yyyy)"
+          },
+          "transTime": {
+            "type": "string",
+            "description": "Giờ giao dịch (hh:mm:ss)"
+          },
+          "branchName": {
+            "type": "string",
+            "description": "Tên chi nhánh/PGD"
+          },
+          "taxCode": {
+            "type": "string",
+            "description": "Mã số thuế"
+          },
+          "cifNo": {
+            "type": "string",
+            "description": "Mã khách hàng (CIF)"
+          },
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản khách hàng SGB"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Tên chủ tài khoản khách hàng"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Nội dung"
+          },
+          "txnCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Số tiền giao dịch"
+          },
+          "amountByWords": {
+            "type": "string",
+            "description": "Số tiền bằng chữ"
+          },
+          "balanceAfterTxn": {
+            "type": "number",
+            "description": "Số dư sau GD"
+          },
+          "CrDr": {
+            "type": "string",
+            "description": "Cờ xác định số dư sau giao dịch"
+          }
+        },
+        "required": [
+          "seqNo",
+          "tranType",
+          "mantInd",
+          "transDate",
+          "transTime",
+          "branchName",
+          "taxCode",
+          "cifNo",
+          "acctNo",
+          "accountName",
+          "narrative",
+          "txnCCY",
+          "amount",
+          "amountByWords",
+          "balanceAfterTxn",
+          "CrDr"
+        ]
+      },
+      "Res_document_payment_order_export": {
+        "type": "object",
+        "properties": {
+          "seqNo": {
+            "type": "string",
+            "description": "Số tham chiếu giao dịch"
+          },
+          "transDate": {
+            "type": "string",
+            "description": "Ngày giao dịch (dd/MM/yyyy)"
+          },
+          "transTime": {
+            "type": "string",
+            "description": "Giờ giao dịch (hh:mm:ss)"
+          },
+          "branchName": {
+            "type": "string",
+            "description": "Tên chi nhánh/PGD"
+          },
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản khách hàng SGB"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Tên chủ tài khoản khách hàng"
+          },
+          "acctAddress": {
+            "type": "string",
+            "description": "Địa chỉ khách hàng"
+          },
+          "counterAcctNo": {
+            "type": "string",
+            "description": "Số tài khoản đối ứng"
+          },
+          "counterAcctName": {
+            "type": "string",
+            "description": "Tên Tài khoản đối ứng"
+          },
+          "counterAddress": {
+            "type": "string",
+            "description": "Địa chỉ đối ứng"
+          },
+          "counterBankName": {
+            "type": "string",
+            "description": "Ngân hàng đối ứng"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Nội dung"
+          },
+          "txnCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "taxCode": {
+            "type": "string",
+            "description": "Mã số thuế"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Số tiền giao dịch"
+          },
+          "amountByWords": {
+            "type": "string",
+            "description": "Số tiền bằng chữ"
+          }
+        },
+        "required": [
+          "seqNo",
+          "transDate",
+          "transTime",
+          "branchName",
+          "taxCode",
+          "acctNo",
+          "accountName",
+          "narrative",
+          "txnCCY",
+          "amount",
+          "amountByWords",
+          "acctAddress",
+          "counterAcctNo",
+          "counterAcctName",
+          "counterAddress",
+          "counterBankName"
+        ]
+      },
+      "Dto_trans": {
+        "type": "object",
+        "properties": {
+          "seqNo": {
+            "type": "string",
+            "description": "Số CT"
+          },
+          "transDate": {
+            "type": "string",
+            "description": "Ngày giao dịch (dd/MM/yyyy)"
+          },
+          "effectDate": {
+            "type": "string",
+            "description": "Ngày hiệu lực(dd-MM-yyyy)"
+          },
+          "transType": {
+            "type": "string",
+            "description": "Loại GD"
+          },
+          "refNo": {
+            "type": "string",
+            "description": "Số Ref"
+          },
+          "debitAmount": {
+            "type": "number",
+            "description": "Phát sinh nợ"
+          },
+          "creditAmount": {
+            "type": "number",
+            "description": "Phát sinh có"
+          },
+          "narrative": {
+            "type": "string",
+            "description": "Nội dung"
+          },
+          "balBeforeTxn": {
+            "type": "number",
+            "description": "Số dư trước GD"
+          },
+          "balAfterTxn": {
+            "type": "number",
+            "description": "Số dư sau GD"
+          }
+        },
+        "required": [
+          "seqNo",
+          "transDate",
+          "effectDate",
+          "transType",
+          "refNo",
+          "debitAmount",
+          "creditAmount",
+          "narrative",
+          "balBeforeTxn",
+          "balAfterTxn"
+        ]
+      },
+      "Res_document_statement_export": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản khách hàng SGB"
+          },
+          "acctName": {
+            "type": "string",
+            "description": "Tên chủ tài khoản"
+          },
+          "acctType": {
+            "type": "string",
+            "description": "Loại tài khoản"
+          },
+          "acctCCY": {
+            "type": "string",
+            "description": "Loại tiền tệ"
+          },
+          "sumTransDebit": {
+            "type": "number",
+            "description": "Doanh số GD Nợ"
+          },
+          "sumTransCredit": {
+            "type": "number",
+            "description": "Doanh số GD Có"
+          },
+          "monthlyDebit": {
+            "type": "number",
+            "description": "Doanh số tháng Nợ"
+          },
+          "monthlyCredit": {
+            "type": "number",
+            "description": "Doanh số tháng Có"
+          },
+          "yearlyDebit": {
+            "type": "number",
+            "description": "Doanh số năm Nợ"
+          },
+          "yearlyCredit": {
+            "type": "number",
+            "description": "Doanh số năm Có"
+          },
+          "openingBalance": {
+            "type": "number",
+            "description": "Số dư đầu ngày(dd-MM-yyyy)"
+          },
+          "endingBalance": {
+            "type": "number",
+            "description": "Số dư cuối ngày(dd-MM-yyyy)"
+          },
+          "trans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dto_trans"
+            },
+            "description": "Danh sách giao dịch",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sumTransDebit",
+          "sumTransCredit",
+          "acctNo",
+          "acctCCY",
+          "yearlyCredit",
+          "monthlyDebit",
+          "monthlyCredit",
+          "yearlyDebit",
+          "openingBalance",
+          "endingBalance",
+          "trans",
+          "acctName",
+          "acctType"
+        ]
+      },
+      "Req_document_statement_export": {
+        "type": "object",
+        "properties": {
+          "acctNo": {
+            "type": "string",
+            "description": "Số tài khoản của KH SGB"
+          },
+          "queryDate": {
+            "type": "string",
+            "description": "Ngày truy vấn thông tin"
+          }
+        },
+        "required": [
+          "acctNo",
+          "queryDate"
+        ]
+      },
+      "Base_Request": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "description": "Mã request "
+          },
+          "requestTime": {
+            "type": "string",
+            "description": "Thời gian request"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Mã đại lý SAIGONBANK cung cấp cho đối tác"
+          },
+          "data": {
+            "type": "object",
+            "properties": {},
+            "description": "Dữ liệu truy vấn của request"
+          },
+          "signature": {
+            "type": "string",
+            "description": "Chữ ký của dữ liệu"
+          }
+        },
+        "required": [
+          "requestId",
+          "requestTime",
+          "merchantId",
+          "signature",
+          "data"
+        ]
+      },
+      "Base_Response": {
+        "type": "object",
+        "properties": {
+          "responseId": {
+            "type": "string",
+            "description": "Mã phản hồi"
+          },
+          "responseTime": {
+            "type": "string",
+            "description": "Thời gian phản hồi"
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "Mã lỗi",
+            "enum": [
+              "00",
+              "01"
+            ]
+          },
+          "errorMsg": {
+            "type": "string",
+            "description": "Mô tả lỗi "
+          },
+          "data": {
+            "type": "object",
+            "properties": {},
+            "description": "Dữ liệu hệ thống trả về",
+            "nullable": true
+          },
+          "signature": {
+            "type": "string",
+            "description": "Chữ ký của dữ liệu"
+          }
+        },
+        "required": [
+          "responseId",
+          "responseTime",
+          "errorCode",
+          "errorMsg",
+          "data",
+          "signature"
+        ]
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

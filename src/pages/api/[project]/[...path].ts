@@ -25,34 +25,163 @@ async function runSQLMapping(dbFile: string, sql: string, responseTemplate: any,
   jp.value(responseTemplate, jsonPath, rows.length === 1 ? rows[0] : rows);
   return responseTemplate;
 }
+function collectMissingFieldsFromSchema(
+  schema: SchemaObject,
+  data: any,
+  pathPrefix = "",
+  rootSpec?: OpenAPIObject,
+  missing: { field: string; type: string }[] = []
+) {
+  if (!schema) return missing;
+
+  // Resolve $ref nếu có
+  if (schema.$ref && rootSpec) {
+    const refPath = schema.$ref.replace("#/", "").split("/");
+    let ref: any = rootSpec;
+    for (const p of refPath) ref = ref?.[p];
+    if (ref) return collectMissingFieldsFromSchema(ref, data, pathPrefix, rootSpec, missing);
+  }
+
+  // Nếu là object
+  if (schema.type === "object" && schema.properties) {
+    const objData = data && typeof data === "object" ? data : {};
+    const required = schema.required || [];
+    for (const key of required) {
+      const fullPath = pathPrefix ? `${pathPrefix}.${key}` : key;
+      const propSchema = schema.properties[key] as SchemaObject;
+
+      if (objData[key] === undefined || objData[key] === "") {
+        const expectedType = normalizeType(propSchema?.type);
+        missing.push({ field: `Body: ${fullPath}`, type: expectedType });
+      } else {
+        // Nếu là object hoặc array lồng thì đệ quy tiếp
+        collectMissingFieldsFromSchema(propSchema, objData[key], fullPath, rootSpec, missing);
+      }
+    }
+  }
+
+  // Nếu là array
+  if (schema.type === "array" && schema.items) {
+    const arrData = Array.isArray(data) ? data : [];
+    if (arrData.length === 0 && (schema as any).minItems > 0) {
+      missing.push({ field: `Body: ${pathPrefix}`, type: "array (minItems > 0)" });
+    } else {
+      arrData.forEach((item, idx) =>
+        collectMissingFieldsFromSchema(schema.items as SchemaObject, item, `${pathPrefix}[${idx}]`, rootSpec, missing)
+      );
+    }
+  }
+
+  return missing;
+}
+
+// function generateFakeDataFromSchema(
+//   schema: SchemaObject,
+//   missingFields: { field: string; type: string }[] = []
+// ): any {
+//   if (!schema) return "string_example_return_no_schema";
+//   if (schema.type === "object" && schema.properties) {
+//     const obj: any = {};
+//     Object.entries(schema.properties).forEach(([key, prop]: [string, any]) => {
+//       //Trường hợp bị lỗi validate request
+
+//       const type = Array.isArray(prop.type) ? prop.type[0] : prop.type;
+
+
+//       // if (["description", "message", "error"].includes(key) && type === "string") {
+//       //   obj[key] =
+//       //     missingFields.length > 0
+//       //       ? `Validation error. Missing: ${missingFields
+//       //         .map(m => `${m.field} (${m.type})`)
+//       //         .join(", ")}`
+//       //       : "Validation error";
+//       //   return;
+//       // }
+//       if (["statusCode", "code", "msgCode", "returnCode", "errCode"].includes(key)) {
+//         obj[key] = 400;
+//         return;
+//       }
+//       switch (type) {
+//         case "string":
+//           obj[key] = "Case_invalid_no_example";
+//           break;
+//         case "number":
+//         case "integer":
+//           obj[key] = 0;
+//           break;
+//         case "boolean":
+//           obj[key] = false;
+//           break;
+//         case "array":
+//           obj[key] = [];
+//           break;
+//         case "object":
+//           obj[key] = generateFakeDataFromSchema(prop, missingFields);
+//           break;
+//         default:
+//           obj[key] = null;
+//       }
+//     });
+//     return obj;
+//   }
+
+//   if (schema.type === "array" && schema.items) {
+//     return [generateFakeDataFromSchema(schema.items as SchemaObject, missingFields)];
+//   }
+
+//   switch (schema.type) {
+//     case "string":
+//       return "string_example";
+//     case "number":
+//     case "integer":
+//       return 0;
+//     case "boolean":
+//       return false;
+//     default:
+//       return null;
+//   }
+// }
+
+// ================= Processor Helper =================
+
+import { ReferenceObject } from "openapi3-ts/oas31";
 
 function generateFakeDataFromSchema(
-  schema: SchemaObject,
-  missingFields: { field: string; type: string }[] = []
+  schema: SchemaObject | ReferenceObject,
+  missingFields: { field: string; type: string }[] = [],
+  rootSpec?: OpenAPIObject,
+  depth = 0
 ): any {
-  if (!schema) return "string_example";
-  if (schema.type === "object" && schema.properties) {
+  if (!schema) return "string_example_return_no_schema";
+
+  if ("$ref" in schema && rootSpec) {
+    const refPath = schema.$ref!.replace(/^#\//, "").split("/");
+    let resolved: any = rootSpec;
+    for (const part of refPath) resolved = resolved?.[part];
+    return generateFakeDataFromSchema(resolved, missingFields, rootSpec, depth + 1);
+  }
+
+  // Tới đây thì schema chắc chắn là SchemaObject
+  const s = schema as SchemaObject;
+
+  if (s.oneOf?.length)
+    return generateFakeDataFromSchema(s.oneOf[0], missingFields, rootSpec, depth + 1);
+  if (s.anyOf?.length)
+    return generateFakeDataFromSchema(s.anyOf[0], missingFields, rootSpec, depth + 1);
+  if (s.allOf?.length) {
+    const merged = Object.assign({}, ...s.allOf.map(sub => 
+      generateFakeDataFromSchema(sub, missingFields, rootSpec, depth + 1)
+    ));
+    return merged;
+  }
+
+  if (s.type === "object" && s.properties) {
     const obj: any = {};
-    Object.entries(schema.properties).forEach(([key, prop]: [string, any]) => {
-      //Trường hợp bị lỗi validate request
+    for (const [key, prop] of Object.entries(s.properties)) {
+      const type = Array.isArray((prop as any).type)
+        ? (prop as any).type[0]
+        : (prop as any).type;
 
-      const type = Array.isArray(prop.type) ? prop.type[0] : prop.type;
-
-
-      if (["description", "message", "error"].includes(key) && type === "string") {
-        console.log(missingFields)
-        obj[key] =
-          missingFields.length > 0
-            ? `Validation error. Missing: ${missingFields
-              .map(m => `${m.field} (${m.type})`)
-              .join(", ")}`
-            : "Validation error";
-        return;
-      }
-      if (["statusCode", "code", "msgCode", "returnCode", "errCode"].includes(key)) {
-        obj[key] = 400;
-        return;
-      }
       switch (type) {
         case "string":
           obj[key] = "string_example";
@@ -65,23 +194,33 @@ function generateFakeDataFromSchema(
           obj[key] = false;
           break;
         case "array":
-          obj[key] = [];
+          obj[key] = [
+            generateFakeDataFromSchema(
+              (prop as SchemaObject).items || {},
+              missingFields,
+              rootSpec,
+              depth + 1
+            ),
+          ];
           break;
         case "object":
-          obj[key] = generateFakeDataFromSchema(prop, missingFields);
-          break;
         default:
-          obj[key] = null;
+          obj[key] = generateFakeDataFromSchema(
+            prop as SchemaObject,
+            missingFields,
+            rootSpec,
+            depth + 1
+          );
       }
-    });
+    }
     return obj;
   }
 
-  if (schema.type === "array" && schema.items) {
-    return [generateFakeDataFromSchema(schema.items as SchemaObject, missingFields)];
+  if (s.type === "array" && s.items) {
+    return [generateFakeDataFromSchema(s.items, missingFields, rootSpec, depth + 1)];
   }
 
-  switch (schema.type) {
+  switch (s.type) {
     case "string":
       return "string_example";
     case "number":
@@ -94,7 +233,8 @@ function generateFakeDataFromSchema(
   }
 }
 
-// ================= Processor Helper =================
+
+
 async function loadProcessors(project: string, endpoint: string, method: string) {
   const dbFile = path.join(process.cwd(), "mock-data", `${project}.sqlite`);
   console.log(`checker ${dbFile}`)
@@ -191,16 +331,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         missing.push({ field: "Body", type: "object (invalid JSON)" });
       }
 
-      if (bodySchema.required) {
-        (bodySchema.required as string[]).forEach(reqKey => {
-          if (bodyObj[reqKey] === undefined || bodyObj[reqKey] === "") {
-            const expectedType = normalizeType((bodySchema.properties?.[reqKey] as SchemaObject)?.type);
-            missing.push({ field: `Body: ${reqKey}`, type: expectedType });
-          }
-        });
-      }
+      // if (bodySchema.required) {
+      //   (bodySchema.required as string[]).forEach(reqKey => {
+      //     if (bodyObj[reqKey] === undefined || bodyObj[reqKey] === "") {
+      //       const expectedType = normalizeType((bodySchema.properties?.[reqKey] as SchemaObject)?.type);
+      //       missing.push({ field: `Body: ${reqKey}`, type: expectedType });
+      //     }
+      //   });
+      // }
+      collectMissingFieldsFromSchema(bodySchema, bodyObj, "", api, missing);
     }
-    //missing filed
+    //----------------------------missing filed-----------------------------
     if (missing.length > 0) {
       const schema400 = operation.responses?.["400"]?.content?.["application/json"]?.schema as SchemaObject | undefined;
 
@@ -220,15 +361,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         if (exampleReturn) {
+          exampleReturn.systemLogMock = missing.length > 0
+            ? `Validation error. Missing: ${missing
+              .map(m => `${m.field} (${m.type})`)
+              .join(", ")}`
+            : "Validation error";
           return res.status(400).json(exampleReturn);
         }
         // nếu không có cả 2, cho code tự gen ra
         const fakeCase400 = generateFakeDataFromSchema(schema400, missing);
+        fakeCase400.systemLogMock = missing.length > 0
+          ? `Validation error. Missing: ${missing
+            .map(m => `${m.field} (${m.type})`)
+            .join(", ")}`
+          : "Validation error";
         return res.status(400).json(fakeCase400);
       }
 
       const schema200 = operation.responses?.["200"]?.content?.["application/json"]?.schema as SchemaObject;
       const fakeCase200 = generateFakeDataFromSchema(schema200, missing);
+      fakeCase200.systemLogMock = missing.length > 0
+        ? `Validation error. Missing: ${missing
+          .map(m => `${m.field} (${m.type})`)
+          .join(", ")}`
+        : "Validation error";
       return res.status(400).json(fakeCase200);
     }
 
@@ -237,7 +393,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const processors = await loadProcessors(project, pathKey, method);
     const dbHelper = createDbHelper(project);
 
-    //chạy expect
+    // ------------------- Expectation -------------------
     // sau khi load processors xong:
     const expectations = processors.filter(
       (x: any) => x.type === "expectation" && (x.enabled === 1 || x.enabled === true)
@@ -262,25 +418,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     //-------------------- Example----------------------
-      const schema200 = operation.responses?.["200"]?.content?.["application/json"]?.schema as SchemaObject;
-      if (schema200){
-        const contentJson = operation.responses["200"].content["application/json"];
-        // Lấy example trực tiếp
-        let exampleReturn: any = contentJson?.example;
+    const schema200 = operation.responses?.["200"]?.content?.["application/json"]?.schema as SchemaObject;
+    if (schema200) {
+      const contentJson = operation.responses["200"].content["application/json"];
+      // Lấy example trực tiếp
+      let exampleReturn: any = contentJson?.example;
 
-        // Nếu không có example thì lấy giá trị đầu tiên trong examples
-        if ( contentJson?.examples) {
-          const examplesObj = contentJson.examples as Record<string, { value: any }>;
-          const firstExampleKey = Object.keys(examplesObj)[0];
-          if (firstExampleKey) {
-            exampleReturn = examplesObj[firstExampleKey].value;
-          }
-        }
-
-        if (exampleReturn) {
-          return res.status(200).json(exampleReturn);
+      // Nếu không có example thì lấy giá trị đầu tiên trong examples
+      if (contentJson?.examples) {
+        const examplesObj = contentJson.examples as Record<string, { value: any }>;
+        const firstExampleKey = Object.keys(examplesObj)[0];
+        if (firstExampleKey) {
+          exampleReturn = examplesObj[firstExampleKey].value;
         }
       }
+
+      if (exampleReturn) {
+        return res.status(200).json(exampleReturn);
+      }
+    }
 
     // ------------------- Mock data -------------------
     let mockData = generateMock(operation.responses?.["200"]?.content?.["application/json"]?.schema);

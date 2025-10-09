@@ -20,6 +20,9 @@ export default function ProjectManager() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
 
+  const [sortField, setSortField] = useState<"name" | "endpoints">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
   const router = useRouter();
 
   const fetchProjects = async () => {
@@ -35,6 +38,29 @@ export default function ProjectManager() {
       setLoading(false);
     }
   };
+  const filteredProjects = useMemo(() => {
+    return projects
+      .filter((p) => {
+        if (filterMode === "db" && !p.useDB) return false;
+        if (filterMode === "file" && p.useDB) return false;
+        if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        const fieldA = a[sortField];
+        const fieldB = b[sortField];
+        if (typeof fieldA === "string" && typeof fieldB === "string") {
+          return sortOrder === "asc"
+            ? fieldA.localeCompare(fieldB)
+            : fieldB.localeCompare(fieldA);
+        }
+        if (typeof fieldA === "number" && typeof fieldB === "number") {
+          return sortOrder === "asc" ? fieldA - fieldB : fieldB - fieldA;
+        }
+        return 0;
+      });
+  }, [projects, filterMode, search, sortField, sortOrder]);
+
 
   const deleteProject = async (name: string) => {
     if (!confirm(`Xóa project "${name}"?`)) return;
@@ -58,17 +84,17 @@ export default function ProjectManager() {
     fetchProjects();
   }, []);
 
-  // 🧠 Lọc + tìm kiếm
-  const filteredProjects = useMemo(() => {
-    return projects
-      .filter((p) => {
-        if (filterMode === "db" && !p.useDB) return false;
-        if (filterMode === "file" && p.useDB) return false;
-        if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-        return true;
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [projects, filterMode, search]);
+  // // 🧠 Lọc + tìm kiếm
+  // const filteredProjects = useMemo(() => {
+  //   return projects
+  //     .filter((p) => {
+  //       if (filterMode === "db" && !p.useDB) return false;
+  //       if (filterMode === "file" && p.useDB) return false;
+  //       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+  //       return true;
+  //     })
+  //     .sort((a, b) => a.name.localeCompare(b.name));
+  // }, [projects, filterMode, search]);
 
   // 📄 Phân trang
   const totalPages = Math.ceil(filteredProjects.length / pageSize);
@@ -81,7 +107,7 @@ export default function ProjectManager() {
   const openProject = (name: string) => {
     router.push(`/projects?name=${encodeURIComponent(name)}`);
   };
-    const openBrowser = (name: string) => {
+  const openBrowser = (name: string) => {
     router.push(`/projects/browser?name=${encodeURIComponent(name)}`);
   };
   return (
@@ -97,6 +123,15 @@ export default function ProjectManager() {
             onChange={(e) => setSearch(e.target.value)}
             className="border rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
           />
+          {/* 🔼 Chọn hướng sắp xếp */}
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            <option value="desc">Giảm dần</option>
+            <option value="asc">Tăng dần</option>
+          </select>
           <select
             value={filterMode}
             onChange={(e) => setFilterMode(e.target.value as "all" | "db" | "file")}
@@ -133,11 +168,10 @@ export default function ProjectManager() {
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-bold text-lg" onClick={() => openProject(p.name)}>{p.name}</h3>
                   <span
-                    className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${
-                      p.useDB
+                    className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${p.useDB
                         ? "bg-green-100 text-green-700"
                         : "bg-gray-100 text-gray-600"
-                    }`}
+                      }`}
                   >
                     {p.useDB ? <Database size={14} /> : <FileJson size={14} />}
                     {p.useDB ? "SQLite mode" : "File mode"}

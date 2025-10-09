@@ -44,51 +44,76 @@ export default function ProjectManager() {
 
     const searchParams = useSearchParams(); // phải có ngoặc ()
 
-// --- Lấy danh sách project ---
-  useEffect(() => {
-    fetch("/api/projects")
-      .then(res => res.json())
-      .then((data: Project[]) => setProjects(data))
-      .catch(err => console.error(err));
-  }, []);
+    // --- Lấy danh sách project ---
+    useEffect(() => {
+        fetch("/api/projects")
+            .then(res => res.json())
+            .then((data: Project[]) => setProjects(data))
+            .catch(err => console.error(err));
 
-  // --- Khi có projects + name trên URL ---
-  useEffect(() => {
-    const name = searchParams.get("name");
-    if (!name || projects.length === 0) return;
+    }, []);
 
-    // 🔹 Tìm project trong danh sách
-    const found = projects.find(p => p.name === name);
-    if (found) setSelectedProject(found);
+    // --- Khi có projects + name trên URL ---
+    useEffect(() => {
+        const name = searchParams.get("name");
+        if (!name || projects.length === 0) return;
 
-    // 🔹 Lấy dữ liệu OpenAPI tương ứng
-    fetch(`/api/project-file?name=${encodeURIComponent(name)}`)
-      .then(res => res.json())
-      .then((api: any) => {
-        const eps: Endpoint[] = [];
-        setRootSpec(api);
+        // 🔹 Tìm project trong danh sách
+        const found = projects.find(p => p.name === name);
+        if (found) setSelectedProject(found);
 
-        Object.entries(api.paths || {}).forEach(([path, pathItem]: [string, any]) => {
-          Object.entries(pathItem || {}).forEach(([method, operation]: [string, any]) => {
-            eps.push({
-              path,
-              methods: [method.toUpperCase()],
-              requestBody: operation.requestBody
-                ? Object.entries(operation.requestBody.content || {}).map(([ctype, obj]: [string, any]) => ({
-                    contentType: ctype,
-                    ...obj,
-                  }))
-                : [],
-              responses: [operation.responses || {}],
-            });
-          });
+        // 🔹 Lấy dữ liệu OpenAPI tương ứng
+        fetch(`/api/project-file?name=${encodeURIComponent(name)}`)
+            .then(res => res.json())
+            .then((api: any) => {
+                const eps: Endpoint[] = [];
+                setRootSpec(api);
+
+                Object.entries(api.paths || {}).forEach(([path, pathItem]: [string, any]) => {
+                    Object.entries(pathItem || {}).forEach(([method, operation]: [string, any]) => {
+                        eps.push({
+                            path,
+                            methods: [method.toUpperCase()],
+                            requestBody: operation.requestBody
+                                ? Object.entries(operation.requestBody.content || {}).map(([ctype, obj]: [string, any]) => ({
+                                    contentType: ctype,
+                                    ...obj,
+                                }))
+                                : [],
+                            responses: [operation.responses || {}],
+                        });
+                    });
+                });
+
+                setEndpoints(eps);
+            })
+            .catch(err => console.error(err));
+    }, [searchParams, projects]);
+    // Khởi tạo input mặc định sau khi endpoints & rootSpec có dữ liệu
+    useEffect(() => {
+        if (!rootSpec || endpoints.length === 0) return;
+
+        const newInputs: Record<string, string> = {};
+
+        endpoints.forEach((ep) => {
+            const epKey = `${ep.methods}-${ep.path}`;
+            const req = ep?.requestBody?.find(
+                (r) => r.contentType === "application/json"
+            );
+            const reqSchema = req?.schema || {};
+            try {
+                newInputs[`${epKey}-body`] = JSON.stringify(
+                    schemaToExample(reqSchema, rootSpec),
+                    null,
+                    2
+                );
+            } catch {
+                newInputs[`${epKey}-body`] = "{}";
+            }
         });
 
-        setEndpoints(eps);
-      })
-      .catch(err => console.error(err));
-  }, [searchParams, projects]);
-
+        setInputs(newInputs);
+    }, [endpoints, rootSpec]);
 
     useEffect(() => {
         if (!selectedProject) return;
@@ -116,10 +141,18 @@ export default function ProjectManager() {
                         });
                     });
                 });
-
                 setEndpoints(eps);
             })
             .catch(err => console.error(err));
+        endpoints.map((ep, idx) => {
+            // Tạo key duy nhất
+            const epKey = `${ep.methods}-${ep.path}`;
+            const req = ep?.requestBody?.find(
+                (r) => r.contentType === "application/json"
+            );
+            const reqSchema = req?.schema || {};
+            inputs[`${epKey}-body`] = JSON.stringify(schemaToExample(reqSchema, rootSpec), null, 2);
+        })
     }, [selectedProject]);
 
 
@@ -411,11 +444,16 @@ export default function ProjectManager() {
                                                                 <textarea
                                                                     className="w-full border rounded p-1 font-mono text-sm"
                                                                     rows={6}
-                                                                    value={inputs[`${epKey}-body`] || ""}
-                                                                    onChange={e => handleInputChange(`${epKey}-body`, e.target.value)}
+                                                                    value={
+                                                                        inputs[`${epKey}-body`]
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        handleInputChange(`${epKey}-body`, e.target.value)
+                                                                    }
                                                                 />
                                                             </div>
                                                         )}
+
 
                                                         {/* Run button */}
                                                         <button
@@ -440,8 +478,8 @@ export default function ProjectManager() {
                                             <div className="mt-4">
                                                 <h3
                                                     className={`font-bold ${responses[epKey].status >= 200 && responses[epKey].status < 300
-                                                            ? "text-green-600"
-                                                            : "text-red-600"
+                                                        ? "text-green-600"
+                                                        : "text-red-600"
                                                         }`}
                                                 >
                                                     Response: {responses[epKey].status}

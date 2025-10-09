@@ -16,44 +16,45 @@ export async function checkExpectations(
 
   // ===== Helpers =====
   const getActualValue = (req: any, location: string, field: string) => {
-    if (!location) return undefined;
-    location = String(location).toLowerCase();
+  if (!location) return undefined;
+  location = String(location).toLowerCase();
 
-    if (location === "header" || location === "headers") {
-      const keys = Object.keys(req.headers || {});
-      const foundKey = keys.find(k => k.toLowerCase() === field.toLowerCase());
-      let v = foundKey ? req.headers[foundKey] : req.headers[field.toLowerCase()];
-      if (Array.isArray(v)) v = v[0];
-      if (typeof v === "string") v = v.trim();
-      return v;
+  // Helper: truy cập sâu object theo path "a.b.c"
+  const deepGet = (obj: any, path: string) => {
+    if (!path) return obj;
+    const parts = path.split(".");
+    let cur = obj;
+    for (const p of parts) {
+      if (cur == null) return undefined;
+      cur = cur[p];
     }
-
-    if (["query", "param", "params"].includes(location)) {
-      let v =
-        (req.query && (req.query[field] ?? req.query[decodeURIComponent(field)])) ??
-        undefined;
-      if (Array.isArray(v)) v = v[0];
-      if (typeof v === "string") v = v.trim();
-      return v;
-    }
-
-    if (location === "body") {
-      const body = req.body ?? {};
-      if (!field) return body;
-      const parts = field.split(".");
-      let cur: any = body;
-      for (const p of parts) {
-        if (cur == null) {
-          cur = undefined;
-          break;
-        }
-        cur = cur[p];
-      }
-      return cur;
-    }
-
-    return undefined;
+    return cur;
   };
+
+  if (location === "header" || location === "headers") {
+    const headers = req.headers || {};
+    const keys = Object.keys(headers);
+    const foundKey = keys.find(k => k.toLowerCase() === field.toLowerCase());
+    const val = foundKey ? headers[foundKey] : headers[field.toLowerCase()];
+    if (Array.isArray(val)) return val[0];
+    if (typeof val === "string") return val.trim();
+    return val;
+  }
+
+  if (["query", "param", "params"].includes(location)) {
+    const q = req.query ?? {};
+    // Hỗ trợ "a.b.c" trong query nếu query là object lồng
+    return deepGet(q, field);
+  }
+
+  if (location === "body") {
+    const body = req.body ?? {};
+    return deepGet(body, field);
+  }
+
+  return undefined;
+};
+
 
   const normalizeComp = (c: any) => {
     if (!c && c !== 0) return "";
@@ -61,16 +62,17 @@ export async function checkExpectations(
       .toLowerCase()
       .trim()
       .replace(/\s+/g, "")
-      .replace(/equals?/, "eq")
-      .replace(/notequals?/, "ne")
-      .replace(/contains?/, "inc")
+      // ⚠️ phải thay các chuỗi dài hơn trước (not... trước equals)
       .replace(/notcontains?/, "ninc")
+      .replace(/notequals?/, "ne")
+      .replace(/notexists?/, "notexists")
       .replace(/greaterthanorequalto?/, "gte")
-      .replace(/greaterthan?/, "gt")
       .replace(/lessthanorequalto?/, "lte")
+      .replace(/greaterthan?/, "gt")
       .replace(/lessthan?/, "lt")
-      .replace(/exists?/, "exists")
-      .replace(/notexists?/, "notexists");
+      .replace(/contains?/, "inc")
+      .replace(/equals?/, "eq")
+      .replace(/exists?/, "exists");
   };
 
   const compare = (actual: any, expected: any, compRaw: any) => {
@@ -111,7 +113,6 @@ export async function checkExpectations(
         if (!c.enabled) continue;
         const actual = getActualValue(req, c.location, c.field);
         const passed = compare(actual, c.expectedValue, c.comparison);
-
         logs.push({
           expectation: e.name,
           index: i,

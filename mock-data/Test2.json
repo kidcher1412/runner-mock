@@ -53,35 +53,33 @@
                     },
                     "jobId": {
                       "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "row1": {
+                          "type": "string"
+                        },
+                        "row2": {
+                          "type": "number"
+                        },
+                        "row3": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "row1",
+                        "row2",
+                        "row3"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
                     "message",
-                    "jobId"
+                    "jobId",
+                    "data"
                   ]
-                },
-                "examples": {
-                  "1": {
-                    "summary": "Example 1",
-                    "value": {
-                      "message": "Test#1",
-                      "jobId": "54"
-                    }
-                  },
-                  "2": {
-                    "summary": "Example 2",
-                    "value": {
-                      "message": "Test#2",
-                      "jobId": "65"
-                    }
-                  },
-                  "3": {
-                    "summary": "Example 3",
-                    "value": {
-                      "message": "Test#3",
-                      "jobId": "15"
-                    }
-                  }
                 }
               }
             },
@@ -92,21 +90,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "",
                   "type": "object",
                   "properties": {
+                    "message": {
+                      "type": "string"
+                    },
                     "jobId": {
                       "type": "string"
                     },
-                    "message": {
-                      "type": "string",
-                      "description": "Mô tả"
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "row1": {
+                          "type": "string"
+                        },
+                        "row2": {
+                          "type": "number"
+                        },
+                        "row3": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "row1",
+                        "row2",
+                        "row3"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
+                    "message",
                     "jobId",
-                    "message"
+                    "data"
                   ]
+                },
+                "example": {
+                  "message": "Sol caput aiunt cervus adulatio credo. Acidus dolor thalassinus utilis victoria. Altus deporto mollitia ubi pauper volva.",
+                  "jobId": "47",
+                  "data": {
+                    "row1": "aliqua in minim enim culpa",
+                    "row2": 82051346.06492731,
+                    "row3": true
+                  }
                 }
               }
             },
@@ -144,7 +170,7 @@
           "200": {
             "description": "",
             "content": {
-              "*/*": {
+              "text/plain": {
                 "schema": {
                   "type": "object",
                   "properties": {}
@@ -174,6 +200,98 @@
                   "properties": {}
                 },
                 "example": "test"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/test-header": {
+      "post": {
+        "summary": "test_header",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "test",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "check",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "test": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "test": {
+                      "type": "string"
+                    },
+                    "check": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "test",
+                    "check"
+                  ]
+                }
               }
             },
             "headers": {}
