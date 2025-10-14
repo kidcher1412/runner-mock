@@ -33,6 +33,7 @@ export default function ProjectManager() {
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
     const [responses, setResponses] = useState<Record<string, any>>({});
+    const [selectedContentTypes, setSelectedContentTypes] = useState<Record<number, string>>({});
 
     // Collapse state
     const [showReqMap, setShowReqMap] = useState<Record<string, boolean>>({});
@@ -169,6 +170,51 @@ export default function ProjectManager() {
         setInputs(prev => ({ ...prev, [key]: value }));
     };
 
+    const resolveRef = (schema: any): any => {
+        if (!schema || typeof schema !== "object") return schema;
+        if (schema.$ref && rootSpec) {
+            const refPath = schema.$ref.replace(/^#\//, "").split("/");
+            return refPath.reduce((obj: any, key: string) => obj?.[key], rootSpec);
+        }
+        return schema;
+    };
+
+    const inferTypeLabel = (schema: any): string => {
+        if (!schema || typeof schema !== "object") return typeof schema;
+        if (schema.type) return schema.type;
+        if (schema.enum) return "enum";
+        if (schema.properties) return "object";
+        if (schema.items) return "array";
+        return "any";
+    };
+
+    const schemaToTypeShape = (schema: any): any => {
+        const s = resolveRef(schema) || {};
+        if (s.type === "object" && s.properties) {
+            const obj: Record<string, any> = {};
+            Object.entries(s.properties).forEach(([k, v]: [string, any]) => {
+                obj[k] = schemaToTypeShape(v);
+            });
+            return obj;
+        }
+        if (s.type === "array") {
+            return [schemaToTypeShape(s.items)];
+        }
+        if (s.enum) return `enum<${(s.type || "string")}>`;
+        if (s.format) return `${s.type || "any"}<${s.format}>`;
+        return s.type || inferTypeLabel(s);
+    };
+
+    const getBodyExampleByContentType = (ep: Endpoint, contentType: string) => {
+        const rb = ep?.requestBody?.find((r: any) => r.contentType === contentType);
+        const schema = rb?.schema || {};
+        try {
+            return JSON.stringify(schemaToExample(schema, rootSpec), null, 2);
+        } catch {
+            return "{}";
+        }
+    };
+
     // const testEndpointWithValidation = async (ep: Endpoint, epKey: string, opts?: {
     //   headers: KeyValue[];
     //   params: KeyValue[];
@@ -198,6 +244,7 @@ export default function ProjectManager() {
             headers?: KeyValue[];
             params?: KeyValue[];
             body?: string;
+            contentType?: string;
         }
     ) => {
         // Xây URL (thêm query param nếu có)
@@ -212,14 +259,44 @@ export default function ProjectManager() {
             if (h.key) fetchHeaders[h.key] = h.value;
         });
 
-        // Chuẩn bị body
-        let bodyData: any = undefined;
-        if (opts?.body) {
-            try {
-                bodyData = JSON.parse(opts.body);
+        // Chuẩn bị body theo content-type
+        let bodyToSend: any = undefined;
+        const ct = opts?.contentType || "application/json";
+        if (opts?.body && ep.methods[0] !== "GET") {
+            if (ct === "application/json") {
+                try {
+                    const parsed = JSON.parse(opts.body);
+                    bodyToSend = JSON.stringify(parsed);
+                } catch {
+                    bodyToSend = opts.body;
+                }
                 fetchHeaders["Content-Type"] = "application/json";
-            } catch {
-                bodyData = opts.body; // nếu không phải JSON thì gửi raw
+            } else if (ct === "application/x-www-form-urlencoded") {
+                try {
+                    const obj = JSON.parse(opts.body);
+                    const sp = new URLSearchParams();
+                    Object.entries(obj as any).forEach(([k, v]) => sp.append(k, String(v)));
+                    bodyToSend = sp;
+                    fetchHeaders["Content-Type"] = "application/x-www-form-urlencoded";
+                } catch {
+                    bodyToSend = opts.body;
+                    fetchHeaders["Content-Type"] = "application/x-www-form-urlencoded";
+                }
+            } else if (ct === "multipart/form-data") {
+                try {
+                    const obj = JSON.parse(opts.body);
+                    const fd = new FormData();
+                    Object.entries(obj as any).forEach(([k, v]) => fd.append(k, String(v)));
+                    bodyToSend = fd;
+                    // Let browser set boundary; do not set Content-Type manually
+                } catch {
+                    const fd = new FormData();
+                    fd.append("payload", opts.body);
+                    bodyToSend = fd;
+                }
+            } else {
+                bodyToSend = opts.body;
+                fetchHeaders["Content-Type"] = ct;
             }
         }
 
@@ -227,7 +304,7 @@ export default function ProjectManager() {
             const res = await fetch(url.toString(), {
                 method: ep.methods[0] || "GET",
                 headers: fetchHeaders,
-                body: ep.methods[0] !== "GET" ? JSON.stringify(bodyData) : undefined,
+                body: ep.methods[0] !== "GET" ? bodyToSend : undefined,
             });
 
             // const text = await res.text();
@@ -246,15 +323,15 @@ export default function ProjectManager() {
 
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen bg-background text-foreground">
             {/* Sidebar */}
-            <div className="w-64 bg-gray-100 border-r p-4 overflow-y-auto">
-                <h2 className="font-bold mb-2">Projects</h2>
+            <div className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 p-4 overflow-y-auto">
+                <h2 className="font-bold mb-2 text-gray-800 dark:text-gray-100">Projects</h2>
                 <ul>
                     {projects.map(p => (
                         <li
                             key={p.name}
-                            className={`p-2 cursor-pointer rounded ${selectedProject?.name === p.name ? "bg-blue-200" : "hover:bg-gray-200"
+                            className={`p-2 cursor-pointer rounded ${selectedProject?.name === p.name ? "bg-blue-200 dark:bg-blue-900/40 text-gray-900 dark:text-gray-100" : "hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
                                 }`}
                             onClick={() => setSelectedProject(p)}
                         >
@@ -265,33 +342,44 @@ export default function ProjectManager() {
             </div>
 
             {/* Main content */}
-            <div className="flex-1 p-4 overflow-y-auto">
+            <div className="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-950">
                 {selectedProject ? (
                     <>
-                        <h2 className="font-bold text-xl mb-4">{selectedProject.name} Endpoints</h2>
+                        <h2 className="font-bold text-xl mb-4 text-gray-900 dark:text-gray-100">{selectedProject.name} Endpoints</h2>
                         <div className="space-y-4">
                             {endpoints.map((ep, idx) => {
                                 // Tạo key duy nhất
                                 const epKey = `${ep.methods}-${ep.path}`;
                                 return (
 
-                                    <div key={idx} className="border rounded p-4 bg-white shadow-sm">
-                                        <div className="mb-2 font-mono text-sm text-gray-600">
-                                            Base URL:
-                                            <span className="text-blue-600">{` /api/${selectedProject?.name}${ep.path}`}</span>
+                                    <div key={idx} className="border border-gray-200 dark:border-gray-800 rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="font-mono text-sm text-gray-600 dark:text-gray-300">
+                                                Base URL:
+                                                <span className="text-blue-600">{` /api/${selectedProject?.name}${ep.path}`}</span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                {ep.methods.map((m, i) => (
+                                                    <span key={i} className={`px-2 py-0.5 text-xs text-white rounded ${methodColors[m.toLowerCase()]}`}>
+                                                        {m.toUpperCase()}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </div>
-                                        <div className="mb-2 font-bold">{ep.path}</div>
+                                        <div className="mb-3 font-semibold text-gray-800 dark:text-gray-100">{ep.path}</div>
 
                                         <div className="flex flex-wrap gap-2 mb-2">
-                                            {ep.methods.map((m, i) => (
-                                                <button
-                                                    key={i}
-                                                    className={`px-2 py-1 text-white rounded hover:opacity-80 ${methodColors[m.toLowerCase()]}`}
-                                                    onClick={() => testEndpointWithValidation(ep, epKey)}
-                                                >
-                                                    {m.toUpperCase()}
-                                                </button>
-                                            ))}
+                                            <button
+                                                className="px-3 py-1 bg-blue-600 text-white rounded hover:opacity-90"
+                                                onClick={() => testEndpointWithValidation(ep, epKey, {
+                                                    headers: headers[idx] || [],
+                                                    params: params[idx] || [],
+                                                    body: inputs[`${epKey}-body`],
+                                                    contentType: selectedContentTypes[idx] || ep.requestBody?.[0]?.contentType || "application/json",
+                                                })}
+                                            >
+                                                Send Request
+                                            </button>
                                         </div>
 
                                         {/* Request Body input */}
@@ -301,7 +389,7 @@ export default function ProjectManager() {
                                                 {ep.requestBody.map((rb, j) => (
                                                     <div key={j} className="mb-2">
                                                         <button
-                                                            className="text-sm text-blue-600 underline mb-1"
+                                                            className="text-sm text-blue-400 dark:text-blue-300 underline mb-1"
                                                             onClick={() =>
                                                                 setShowReqMap(prev => ({ ...prev, [`${idx}-schema-${j}`]: !prev[`${idx}-schema-${j}`] }))
                                                             }
@@ -312,14 +400,25 @@ export default function ProjectManager() {
                                                         </button>
 
                                                         {showReqMap[`${idx}-schema-${j}`] && (
-                                                            <pre className="bg-gray-50 p-2 rounded overflow-auto text-sm">
-                                                                {JSON.stringify(schemaToExample(rb.schema, rootSpec), null, 2)}
-                                                            </pre>
+                                                            <div className="grid md:grid-cols-2 gap-2">
+                                                                <div>
+                                                                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Example</div>
+                                                                    <pre className="bg-gray-50 dark:bg-gray-950 p-2 rounded overflow-auto text-sm text-gray-800 dark:text-gray-100">
+                                                                        {JSON.stringify(schemaToExample(rb.schema, rootSpec), null, 2)}
+                                                                    </pre>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Type</div>
+                                                                    <pre className="bg-gray-50 dark:bg-gray-950 p-2 rounded overflow-auto text-sm text-gray-800 dark:text-gray-100">
+                                                                        {JSON.stringify(schemaToTypeShape(rb.schema), null, 2)}
+                                                                    </pre>
+                                                                </div>
+                                                            </div>
                                                         )}
                                                     </div>
                                                 ))}
                                                 <button
-                                                    className="text-sm text-blue-600 underline mb-1"
+                                                    className="text-sm text-blue-400 dark:text-blue-300 underline mb-1"
                                                     onClick={() => setShowReqMap(prev => ({ ...prev, [idx]: !prev[idx] }))}
                                                 >
                                                     {showReqMap[idx] ? "Hide Request Tester" : "Show Request Tester"}
@@ -332,7 +431,7 @@ export default function ProjectManager() {
                                                             {(["headers", "params", "body"] as TabType[]).map(tab => (
                                                                 <button
                                                                     key={tab}
-                                                                    className={`px-3 py-1 rounded ${activeTab[idx] === tab ? "bg-blue-600 text-white" : "bg-gray-200"
+                                                                    className={`px-3 py-1 rounded ${activeTab[idx] === tab ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
                                                                         }`}
                                                                     onClick={() =>
                                                                         setActiveTab(prev => ({
@@ -352,7 +451,7 @@ export default function ProjectManager() {
                                                                 {(headers[idx] || [{ key: "", value: "" }]).map((h, i) => (
                                                                     <div key={i} className="flex space-x-2 mb-1">
                                                                         <input
-                                                                            className="border p-1 flex-1"
+                                                                            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-1 flex-1"
                                                                             placeholder="Key"
                                                                             value={h.key}
                                                                             onChange={e => {
@@ -363,7 +462,7 @@ export default function ProjectManager() {
                                                                             }}
                                                                         />
                                                                         <input
-                                                                            className="border p-1 flex-1"
+                                                                            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-1 flex-1"
                                                                             placeholder="Value"
                                                                             value={h.value}
                                                                             onChange={e => {
@@ -376,7 +475,7 @@ export default function ProjectManager() {
                                                                     </div>
                                                                 ))}
                                                                 <button
-                                                                    className="text-sm text-blue-600 underline"
+                                                                    className="text-sm text-blue-400 dark:text-blue-300 underline"
                                                                     onClick={() =>
                                                                         setHeaders(prev => ({
                                                                             ...prev,
@@ -397,7 +496,7 @@ export default function ProjectManager() {
                                                                     <div key={i} className="flex space-x-2 mb-1">
                                                                         {/* Key */}
                                                                         <input
-                                                                            className="border p-1 flex-1"
+                                                                            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-1 flex-1"
                                                                             placeholder="Key"
                                                                             value={p.key}
                                                                             onChange={e => {
@@ -410,7 +509,7 @@ export default function ProjectManager() {
 
                                                                         {/* Value */}
                                                                         <input
-                                                                            className="border p-1 flex-1"
+                                                                            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 p-1 flex-1"
                                                                             placeholder="Value"
                                                                             value={p.value}
                                                                             onChange={e => {
@@ -424,7 +523,7 @@ export default function ProjectManager() {
                                                                 ))}
 
                                                                 <button
-                                                                    className="text-sm text-blue-600 underline"
+                                                                    className="text-sm text-blue-400 dark:text-blue-300 underline"
                                                                     onClick={() =>
                                                                         setParams(prev => ({
                                                                             ...prev,
@@ -441,8 +540,24 @@ export default function ProjectManager() {
                                                         {/* Body */}
                                                         {activeTab[idx] === "body" && (
                                                             <div className="mb-2">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <label className="text-sm text-gray-600">Content-Type</label>
+                                                                    <select
+                                                                        className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 rounded px-2 py-1 text-sm"
+                                                                        value={selectedContentTypes[idx] || ep.requestBody?.[0]?.contentType || "application/json"}
+                                                                        onChange={(e) => {
+                                                                            const v = e.target.value;
+                                                                            setSelectedContentTypes(prev => ({ ...prev, [idx]: v }));
+                                                                            handleInputChange(`${epKey}-body`, getBodyExampleByContentType(ep, v));
+                                                                        }}
+                                                                    >
+                                                                        {(ep.requestBody || []).map((rb: any) => (
+                                                                            <option key={rb.contentType} value={rb.contentType}>{rb.contentType}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                </div>
                                                                 <textarea
-                                                                    className="w-full border rounded p-1 font-mono text-sm"
+                                                                    className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 rounded p-1 font-mono text-sm"
                                                                     rows={6}
                                                                     value={
                                                                         inputs[`${epKey}-body`]
@@ -463,6 +578,7 @@ export default function ProjectManager() {
                                                                     headers: headers[idx] || [],
                                                                     params: params[idx] || [],
                                                                     body: inputs[`${epKey}-body`],
+                                                                    contentType: selectedContentTypes[idx] || ep.requestBody?.[0]?.contentType || "application/json",
                                                                 })
                                                             }
                                                         >
@@ -484,7 +600,7 @@ export default function ProjectManager() {
                                                 >
                                                     Response: {responses[epKey].status}
                                                 </h3>
-                                                <pre className="bg-gray-200 p-2 rounded overflow-auto text-sm">
+                                                <pre className="bg-gray-100 dark:bg-gray-950 p-2 rounded overflow-auto text-sm text-gray-800 dark:text-gray-100">
                                                     {JSON.stringify(responses[epKey].data, null, 2)}
                                                 </pre>
                                             </div>
@@ -497,7 +613,7 @@ export default function ProjectManager() {
                                                     schema ? (
                                                         <div key={`${methodIdx}-${i}-${status}`} className="mb-1">
                                                             <button
-                                                                className="text-sm text-blue-600 underline mb-1"
+                                                                className="text-sm text-blue-400 dark:text-blue-300 underline mb-1"
                                                                 onClick={() =>
                                                                     setShowResMap(prev => ({
                                                                         ...prev,
@@ -510,7 +626,7 @@ export default function ProjectManager() {
                                                                     : `Show Response Schema (${status})`}
                                                             </button>
                                                             {showResMap[`${methodIdx}-${i}-${status}`] && (
-                                                                <pre className="bg-gray-50 p-2 rounded overflow-auto text-sm whitespace-pre-wrap">
+                                                                <pre className="bg-gray-50 dark:bg-gray-950 p-2 rounded overflow-auto text-sm whitespace-pre-wrap text-gray-800 dark:text-gray-100">
                                                                     {formatResponseSchemaWithExamples(schema, rootSpec)}
                                                                 </pre>
                                                             )}
@@ -527,7 +643,7 @@ export default function ProjectManager() {
                         </div>
                     </>
                 ) : (
-                    <div className="text-gray-500">Chọn project để xem endpoint</div>
+                    <div className="text-gray-600 dark:text-gray-300">Chọn project để xem endpoint</div>
                 )}
             </div>
         </div>

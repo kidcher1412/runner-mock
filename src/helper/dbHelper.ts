@@ -2,8 +2,11 @@ import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 import path from "path";
 
+import { resolveToAbsolute } from "@/lib/utils";
+
 export function createDbHelper(project: string) {
-  const dbFile = path.join(process.cwd(), "mock-data", `${project}.sqlite`);
+  const rel = `./mock-data/${project}.sqlite`;
+  const dbFile = resolveToAbsolute(rel);
   return {
     async query(sql: string, params: any[] = []) {
       const db = await open({ filename: dbFile, driver: sqlite3.Database });

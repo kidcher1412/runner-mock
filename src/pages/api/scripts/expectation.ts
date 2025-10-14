@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import sqlite3 from "sqlite3";
 import path from "path";
+import { resolveToAbsolute } from "@/lib/utils";
 import fs from "fs";
 import { open } from "sqlite";
 
 function getDbPath(project: string) {
-  return path.join(process.cwd(), "mock-data", `${project}.sqlite`);
+  return resolveToAbsolute(`./mock-data/${project}.sqlite`);
 }
 
 async function ensureTable(project: string) {

@@ -13,14 +13,14 @@ export default function ProjectPage() {
 
   if (!project) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-gray-500">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-500 dark:text-gray-400">
         Đang tải thông tin dự án...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
       <ProjectEndpointMapping projectName={project} />
     </div>
   );

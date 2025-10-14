@@ -42,16 +42,16 @@ export default function ProjectPage() {
     }, [searchParams, projects]);
 
     return (
-        <div className="h-screen flex bg-gray-100">
+        <div className="h-screen flex bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
             {/* --- Sidebar --- */}
-            <aside className="w-64 bg-white border-r shadow-sm flex flex-col">
-                <div className="p-4 border-b flex items-center gap-2 font-semibold text-lg text-gray-700">
+            <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center gap-2 font-semibold text-lg text-gray-700 dark:text-gray-100">
                     <Database className="w-5 h-5 text-blue-600" />
                     Dự án có sẵn
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     {projects.length === 0 ? (
-                        <p className="p-4 text-gray-500 italic text-sm">
+                        <p className="p-4 text-gray-500 dark:text-gray-400 italic text-sm">
                             Chưa có project nào
                         </p>
                     ) : (
@@ -61,10 +61,10 @@ export default function ProjectPage() {
                                     key={p.id || p.name}
                                     onClick={() => setSelectedProject(p)}
                                     className={clsx(
-                                        "px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-blue-50 transition-colors",
+                                        "px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors",
                                         selectedProject === p
-                                            ? "bg-blue-100 text-blue-700 font-semibold"
-                                            : "text-gray-700"
+                                            ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold"
+                                            : "text-gray-700 dark:text-gray-200"
                                     )}
                                 >
                                     <Folder className="w-4 h-4" />
@@ -84,7 +84,7 @@ export default function ProjectPage() {
                     </>
 
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-gray-500">
+                    <div className="h-full flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
                         <Database className="w-10 h-10 mb-3 opacity-40" />
                         <p className="text-lg font-medium">
                             Vui lòng chọn một dự án ở menu bên trái 👈

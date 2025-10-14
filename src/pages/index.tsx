@@ -20,17 +20,17 @@ export default function DashboardLinks() {
   ];
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="p-6 max-w-3xl mx-auto bg-gray-50 dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100">
       <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
       <div className="grid gap-4">
         {pages.map((p, idx) => (
           <a
             key={idx}
             href={p.url}
-            className="block border rounded p-4 hover:shadow-lg transition-shadow bg-white"
+            className="block border border-gray-200 dark:border-gray-800 rounded p-4 hover:shadow-lg transition-shadow bg-white dark:bg-gray-900"
           >
-            <div className="font-bold text-lg mb-1">{p.name}</div>
-            <div className="text-gray-600">{p.description}</div>
+            <div className="font-bold text-lg mb-1 text-gray-900 dark:text-gray-100">{p.name}</div>
+            <div className="text-gray-700 dark:text-gray-300">{p.description}</div>
           </a>
         ))}
       </div>

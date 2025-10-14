@@ -113,17 +113,17 @@ export default function UploadOpenApi() {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white shadow rounded">
+    <div className="p-6 max-w-md mx-auto bg-white dark:bg-gray-900 shadow rounded text-gray-900 dark:text-gray-100">
       <h2 className="text-xl font-bold mb-4">Tạo Project Mới</h2>
-      <input type="text" placeholder="Project Name" value={projectName} onChange={e => setProjectName(e.target.value)} className="border p-2 mb-3 w-full rounded" />
-      <p className="text-gray-500 text-sm">
+      <input type="text" placeholder="Project Name" value={projectName} onChange={e => setProjectName(e.target.value)} className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 mb-3 w-full rounded" />
+      <p className="text-gray-500 dark:text-gray-400 text-sm">
         Base mock: <code>{host ? `${host}/api/${projectName || "<projectName>"}` : "..."}</code>
       </p>
       {/* <input type="file" accept=".json" onChange={e => setFile(e.target.files?.[0] || null)} className="mb-3" /> */}
 
       <div
         className={`flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg w-full max-w-md mx-auto transition-colors
-        ${isDragging ? (isError ? "bg-red-100 border-red-400" : "bg-blue-100 border-blue-400") : (isError ? "bg-red-100 border-red-400" : "bg-white border-gray-300")}
+        ${isDragging ? (isError ? "bg-red-100 dark:bg-red-900/30 border-red-400 dark:border-red-700" : "bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-700") : (isError ? "bg-red-100 dark:bg-red-900/30 border-red-400 dark:border-red-700" : "bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700")}
       `}
         onDragOver={(e) => {
           e.preventDefault();
@@ -142,7 +142,7 @@ export default function UploadOpenApi() {
       >
         <label
           htmlFor="file-upload"
-          className="cursor-pointer flex flex-col items-center justify-center w-full h-32 text-gray-500 hover:text-gray-700"
+          className="cursor-pointer flex flex-col items-center justify-center w-full h-32 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
         >
           <FileText className="h-12 w-12 mb-2" />
           <span>
@@ -161,7 +161,7 @@ export default function UploadOpenApi() {
           />
         </label>
         {file && (
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             File size: {(file.size / 1024).toFixed(2)} KB
           </div>
         )}
@@ -175,13 +175,13 @@ export default function UploadOpenApi() {
         {loading ? "Uploading..." : "Upload"}
       </button>
       {/* {file && <p className="mt-2 text-gray-600">File đã chọn: <span className="font-mono">{file.name}</span></p>} */}
-      {message && <p className="mt-2 text-green-600">{message}</p>}
-      {error && <p className="mt-2 text-red-600">{error}</p>}
+      {message && <p className="mt-2 text-green-600 dark:text-green-400">{message}</p>}
+      {error && <p className="mt-2 text-red-600 dark:text-red-400">{error}</p>}
       {/* 🟢 Nút chuyển hướng sang danh sách dự án */}
       <div className="mt-4 text-center">
         <button
           onClick={() => router.push("/projects/upload/list")}
-          className="text-blue-600 hover:underline font-medium"
+          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
         >
           → Chuyển hướng sang danh sách dự án đã upload
         </button>

@@ -6,6 +6,7 @@ import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 import jp from "jsonpath";
 import path from "path";
+import { resolveToAbsolute } from "@/lib/utils";
 import { createDbHelper } from "@/helper/dbHelper";
 import { checkExpectations } from "@/helper/expectationHelper";
 
@@ -16,7 +17,7 @@ function normalizeType(t: string | string[] | undefined): string {
 const prisma = new PrismaClient();
 
 async function runSQLMapping(dbFile: string, sql: string, responseTemplate: any, jsonPath: string) {
-  const db = await open({ filename: dbFile, driver: sqlite3.Database });
+  const db = await open({ filename: resolveToAbsolute(dbFile), driver: sqlite3.Database });
   const rows = await db.all(sql);
   await db.close();
 
@@ -401,7 +402,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(expectations)
     if (expectations.length > 0) {
       const { matched, logs } = await checkExpectations(req, res, expectations);
-      if (matched) return; // đã trả response ở trong hàm rồi
+      if (matched) return; // đã trả response ở trong hàm rồi (đã set Content-Type theo expectation)
     }
 
     // chạy pre

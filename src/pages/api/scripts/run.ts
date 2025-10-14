@@ -6,12 +6,13 @@ import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 import jp from "jsonpath";
 import path from "path";
+import { resolveToAbsolute } from "@/lib/utils";
 
 const prisma = new PrismaClient();
 
 // helper: đọc processors trong sqlite
 async function loadProcessors(project: string, endpoint: string, method: string) {
-  const dbFile = path.join(process.cwd(), "mock-data", `${project}.sqlite`);
+  const dbFile = resolveToAbsolute(`./mock-data/${project}.sqlite`);
   const db = await open({ filename: dbFile, driver: sqlite3.Database });
   const rows = await db.all(
     `SELECT * FROM processors WHERE project=? AND endpoint=? AND method=? ORDER BY id ASC`,

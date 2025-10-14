@@ -2,9 +2,11 @@ import fs from "fs";
 import path from "path";
 import { OpenAPIObject, SchemaObject } from "openapi3-ts/oas31";
 import { faker } from "@faker-js/faker";
+import { resolveToAbsolute } from "@/lib/utils";
 
 export function loadOpenApi(filePath: string): OpenAPIObject {
-  const raw = fs.readFileSync(filePath, "utf-8");
+  const abs = resolveToAbsolute(filePath) || filePath;
+  const raw = fs.readFileSync(abs, "utf-8");
   return JSON.parse(raw) as OpenAPIObject;
 }
 

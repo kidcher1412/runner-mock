@@ -111,23 +111,23 @@ export default function ProjectManager() {
     router.push(`/projects/browser?name=${encodeURIComponent(name)}`);
   };
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen">
       {/* Header + Actions */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
-        <h2 className="text-2xl font-bold">Danh sách Dự án</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Danh sách Dự án</h2>
         <div className="flex gap-2 flex-wrap items-center">
           <input
             type="text"
             placeholder="🔍 Tìm theo tên..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded px-3 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
           />
           {/* 🔼 Chọn hướng sắp xếp */}
           <select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
-            className="border rounded px-2 py-1 text-sm"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded px-2 py-1 text-sm"
           >
             <option value="desc">Giảm dần</option>
             <option value="asc">Tăng dần</option>
@@ -135,7 +135,7 @@ export default function ProjectManager() {
           <select
             value={filterMode}
             onChange={(e) => setFilterMode(e.target.value as "all" | "db" | "file")}
-            className="border rounded px-2 py-1 text-sm"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded px-2 py-1 text-sm"
           >
             <option value="all">Tất cả</option>
             <option value="db">Chỉ DB Mode</option>
@@ -152,25 +152,25 @@ export default function ProjectManager() {
 
       {/* Nội dung */}
       {loading ? (
-        <p>Đang tải...</p>
+        <p className="text-gray-700 dark:text-gray-300">Đang tải...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-600 dark:text-red-400">{error}</p>
       ) : projects.length === 0 ? (
-        <p>Chưa có dự án nào. Hãy upload file OpenAPI JSON mới.</p>
+        <p className="text-gray-700 dark:text-gray-300">Chưa có dự án nào. Hãy upload file OpenAPI JSON mới.</p>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {currentProjects.map((p) => (
               <div
                 key={p.name}
-                className="border rounded-lg shadow-sm p-4 bg-white hover:shadow-md transition"
+                className="border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm p-4 bg-white dark:bg-gray-900 hover:shadow-md transition"
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-bold text-lg" onClick={() => openProject(p.name)}>{p.name}</h3>
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100" onClick={() => openProject(p.name)}>{p.name}</h3>
                   <span
                     className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${p.useDB
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-600"
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                        : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                       }`}
                   >
                     {p.useDB ? <Database size={14} /> : <FileJson size={14} />}
@@ -178,26 +178,26 @@ export default function ProjectManager() {
                   </span>
                 </div>
 
-                <div className="text-sm text-gray-600 mb-2">
+                <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                   <p onClick={() => openProject(p.name)}>📘 Endpoint: {p.endpoints}</p>
                   <p onClick={() => openBrowser(p.name)}>
                     ⚙️ Processors:{" "}
-                    <span className="text-blue-600">pre: {p.processors.pre}</span>,{" "}
-                    <span className="text-orange-600">post: {p.processors.post}</span>,{" "}
-                    <span className="text-purple-600">expect: {p.processors.expect}</span>
+                    <span className="text-blue-600 dark:text-blue-400">pre: {p.processors.pre}</span>,{" "}
+                    <span className="text-orange-600 dark:text-orange-400">post: {p.processors.post}</span>,{" "}
+                    <span className="text-purple-600 dark:text-purple-400">expect: {p.processors.expect}</span>
                   </p>
                 </div>
 
                 <div className="flex justify-end gap-3 mt-3">
                   <button
                     onClick={() => editProject(p.name)}
-                    className="flex items-center gap-1 text-blue-600 hover:underline"
+                    className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     <Edit2 size={16} /> Sửa
                   </button>
                   <button
                     onClick={() => deleteProject(p.name)}
-                    className="flex items-center gap-1 text-red-600 hover:underline"
+                    className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:underline"
                   >
                     <Trash2 size={16} /> Xóa
                   </button>
@@ -212,17 +212,17 @@ export default function ProjectManager() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-3 py-1 border rounded disabled:opacity-40"
+                className="px-3 py-1 border border-gray-200 dark:border-gray-700 rounded disabled:opacity-40"
               >
                 ← Trước
               </button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
                 Trang {currentPage} / {totalPages}
               </span>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="px-3 py-1 border rounded disabled:opacity-40"
+                className="px-3 py-1 border border-gray-200 dark:border-gray-700 rounded disabled:opacity-40"
               >
                 Sau →
               </button>

@@ -125,7 +125,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
 
 
     return (
-        <div className="border rounded p-4 bg-gray-50 flex flex-col overflow-y-auto">
+        <div className="border border-gray-200 dark:border-gray-800 rounded p-4 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col overflow-y-auto">
 
             <h2 className="font-semibold text-lg mb-3">Mock Processor Tools</h2>
 
@@ -158,7 +158,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
                         type="file"
                         accept=".json,.sqlite"
                         onChange={(e) => setFile(e.target.files?.[0] || null)}
-                        className="border p-1 rounded bg-white"
+                        className="border border-gray-200 dark:border-gray-700 p-1 rounded bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                     />
                     <button
                         onClick={handleImport}
@@ -174,10 +174,10 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
             {message && (
                 <div
                     className={`mt-3 text-sm p-2 rounded ${message.startsWith("✅")
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
                             : message.startsWith("❌")
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
+                                ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
                         }`}
                 >
                     {message}
@@ -186,7 +186,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
 
             {/* LOADING STATE */}
             {loading && (
-                <div className="mt-2 text-gray-500 text-sm animate-pulse">Đang xử lý...</div>
+                <div className="mt-2 text-gray-500 dark:text-gray-400 text-sm animate-pulse">Đang xử lý...</div>
             )}
 
             <h2 className="text-lg font-bold mb-4">DB Local & SQL Runner</h2>
@@ -195,7 +195,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
             <select
                 value={selectedTable}
                 onChange={e => previewTable(e.target.value)}
-                className="border p-2 rounded w-full mb-4"
+                className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 rounded w-full mb-4"
             >
                 <option value="">-- Chọn bảng --</option>
                 {Array.isArray(tables) && tables.map(t => (
@@ -214,7 +214,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
             {tableData.length > 0 && (
                 <div className="mb-4">
                     <h3 className="font-bold mb-2">
-                        Preview bảng <span className="text-blue-600">{selectedTable}</span>
+                        Preview bảng <span className="text-blue-600 dark:text-blue-400">{selectedTable}</span>
                     </h3>
                     {renderTable(tableData)}
                 </div>
@@ -225,7 +225,7 @@ export default function DbSqlRunnerPanel({ project, tables }: { project: string;
                 placeholder="Nhập SQL để chạy thử"
                 value={sql}
                 onChange={e => setSql(e.target.value)}
-                className="border p-2 rounded w-full mb-2 h-20"
+                className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 rounded w-full mb-2 h-20"
             />
             <button className="bg-green-500 hover:bg-green-600 text-white font-semibold p-2 rounded mb-2" onClick={runSql}>
                 Run SQL
