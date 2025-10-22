@@ -1,6 +1,7 @@
 // src/pages/api/db/tables.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
+import { resolveToAbsolute } from "@/lib/utils";
 import fs from "fs";
 import sqlite3 from "sqlite3";
 
@@ -19,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!project) return res.status(400).json({ error: "project is required" });
 
-  const dbPath = path.join(process.cwd(), "mock-data", `${project}.sqlite`);
+  const dbPath = resolveToAbsolute(`./mock-data/${project}.sqlite`);
   if (!fs.existsSync(dbPath)) return res.status(404).json({ error: `Database file not found for project ${project}` });
 
   const db = new sqlite3.Database(dbPath);

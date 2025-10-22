@@ -1,0 +1,571 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Default module",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "sms"
+    },
+    {
+      "name": "email"
+    }
+  ],
+  "paths": {
+    "/sendsms": {
+      "post": {
+        "summary": "1.1 SendSMS",
+        "deprecated": false,
+        "description": "api gửi sms",
+        "operationId": "9001",
+        "tags": [
+          "sms"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Định dạng yyyyMMddHHmmss"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "IBFT_<ds>"
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/req_SendSMS"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data"
+                ]
+              },
+              "example": {
+                "requestId": "Mã request ",
+                "requestTime": "Thời gian request ",
+                "merchantId": "Mã đại lý SAIGONBANK cung cấp cho đối tác",
+                "data": {
+                  "phoneNo": "(887) 385-3880",
+                  "message": "Defluo dolores tergum denique corpus video sponte celer casus cenaculum. Nisi aestas claustrum antiquus cauda libero. Textilis vallum ubi adamo curis video casu",
+                  "terminalId": "Saigonbank pay",
+                  "messageType": "eu minim"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errCode": {
+                      "type": "string",
+                      "enum": [
+                        "00",
+                        "02",
+                        "05",
+                        "08",
+                        "10",
+                        "34",
+                        "80",
+                        "99"
+                      ],
+                      "description": "Mã lỗi"
+                    },
+                    "errMsg": {
+                      "type": "string",
+                      "description": "Diễn giải",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "errCode",
+                    "errMsg"
+                  ]
+                },
+                "example": {
+                  "errCode": "00",
+                  "errMsg": "Gửi tin nhắn thành công"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "",
+                  "type": "object",
+                  "properties": {
+                    "errCode": {
+                      "type": "string",
+                      "enum": [
+                        "02",
+                        "05",
+                        "08",
+                        "10",
+                        "34",
+                        "80",
+                        "99"
+                      ],
+                      "description": "Mã lỗi"
+                    },
+                    "errMsg": {
+                      "type": "string",
+                      "description": "Diễn giải"
+                    }
+                  },
+                  "required": [
+                    "errCode",
+                    "errMsg"
+                  ]
+                },
+                "example": {
+                  "errCode": "95",
+                  "errMsg": "Sai yêu cầu đặc tả"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "",
+                  "type": "object",
+                  "properties": {
+                    "errCode": {
+                      "type": "string",
+                      "enum": [
+                        "02",
+                        "05",
+                        "08",
+                        "10",
+                        "34",
+                        "80",
+                        "99"
+                      ],
+                      "description": "Mã lỗi"
+                    },
+                    "errMsg": {
+                      "type": "string",
+                      "description": "Diễn giải"
+                    }
+                  },
+                  "required": [
+                    "errCode",
+                    "errMsg"
+                  ]
+                },
+                "example": {
+                  "errCode": "99",
+                  "errMsg": "Gửi tin nhắn không thành công"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/sendemail": {
+      "post": {
+        "summary": "1.2 SendEmail",
+        "deprecated": false,
+        "description": "api gửi email",
+        "operationId": "9002",
+        "tags": [
+          "email"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "requestTime": {
+                    "type": "string",
+                    "description": "Định dạng yyyyMMddHHmmss"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "description": "IBFT_<ds>"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "description": "Email người nhận"
+                      },
+                      "mailHeader": {
+                        "type": "string",
+                        "description": "Tiêu đề email",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      "terminalId": {
+                        "type": "string",
+                        "description": "Kênh email"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Nội dung email"
+                      }
+                    },
+                    "required": [
+                      "email",
+                      "mailHeader",
+                      "terminalId",
+                      "message"
+                    ]
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "requestTime",
+                  "merchantId",
+                  "data"
+                ]
+              },
+              "example": {
+                "requestId": "Mã request ",
+                "requestTime": "Thời gian request ",
+                "merchantId": "Mã đại lý SAIGONBANK cung cấp cho đối tác",
+                "data": {
+                  "email": "thong.hoang@saigonbank.com.vn",
+                  "mailHeader": "Eladio_Lebsack33@yahoo.com",
+                  "terminalId": "Omichanel",
+                  "message": "Supellex stips atrox bibo cumque. Cervus cupiditate possimus quibusdam denique antea coaegresco clarus soluta talis. Turpis adamo aliquam color."
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errCode": {
+                      "type": "string",
+                      "enum": [
+                        "00",
+                        "02",
+                        "05",
+                        "08",
+                        "10",
+                        "34",
+                        "80",
+                        "99"
+                      ],
+                      "description": "Mã lỗi"
+                    },
+                    "errMsg": {
+                      "type": "string",
+                      "description": "Diễn giải",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "errCode",
+                    "errMsg"
+                  ]
+                },
+                "example": {
+                  "errCode": "00",
+                  "errMsg": "Gửi email thành công"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "",
+                  "type": "object",
+                  "properties": {
+                    "errCode": {
+                      "type": "string",
+                      "enum": [
+                        "02",
+                        "05",
+                        "08",
+                        "10",
+                        "34",
+                        "80",
+                        "99"
+                      ],
+                      "description": "Mã lỗi"
+                    },
+                    "errMsg": {
+                      "type": "string",
+                      "description": "Diễn giải"
+                    }
+                  },
+                  "required": [
+                    "errCode",
+                    "errMsg"
+                  ]
+                },
+                "example": {
+                  "errCode": "95",
+                  "errMsg": "Sai yêu cầu đặc tả"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "",
+                  "type": "object",
+                  "properties": {
+                    "errCode": {
+                      "type": "string",
+                      "enum": [
+                        "02",
+                        "05",
+                        "08",
+                        "10",
+                        "34",
+                        "80",
+                        "99"
+                      ],
+                      "description": "Mã lỗi"
+                    },
+                    "errMsg": {
+                      "type": "string",
+                      "description": "Diễn giải"
+                    }
+                  },
+                  "required": [
+                    "errCode",
+                    "errMsg"
+                  ]
+                },
+                "example": {
+                  "errCode": "99",
+                  "errMsg": "Gửi tin nhắn không thành công"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/MTMsgService.asmx": {
+      "post": {
+        "summary": "SendEx",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "text/xml; charset=utf-8",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "http://saigonbank.com.vn/smswebservices/SendEx",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/xml": {
+              "schema": {
+                "type": "string"
+              },
+              "example": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n  <soap:Body>\r\n    <tns:SendEx xmlns:tns=\"http://saigonbank.com.vn/smswebservices\">\r\n      <tns:userID>string</tns:userID>\r\n      <tns:message>string</tns:message>\r\n      <tns:commandCode>string</tns:commandCode>\r\n      <tns:messageType>string</tns:messageType>\r\n    </tns:SendEx>\r\n  </soap:Body>\r\n</soap:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "text/xml": {
+                "schema": {
+                  "type": "string",
+                  "xml": {
+                    "x-header": "text/xml"
+                  }
+                },
+                "example": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <tns:SendExResponse xmlns:tns=\"http://saigonbank.com.vn/smswebservices\">\n      <tns:SendExResult>000</tns:SendExResult>\n    </tns:SendExResponse>\n  </soap:Body>\n</soap:Envelope>\n"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "req_SendSMS": {
+        "type": "object",
+        "properties": {
+          "phoneNo": {
+            "type": "string",
+            "description": "Số điện thoại nhận"
+          },
+          "message": {
+            "type": "string",
+            "description": "Nội dung tin nhắn",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "terminalId": {
+            "type": "string",
+            "description": "Kênh nhắn tin"
+          },
+          "messageType": {
+            "type": "string",
+            "description": "Loại tin nhắn"
+          }
+        },
+        "required": [
+          "phoneNo",
+          "message",
+          "messageType",
+          "terminalId"
+        ]
+      },
+      "req_SendEmail": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email người nhận"
+          },
+          "mailHeader": {
+            "type": "string",
+            "description": "Tiêu đề email",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "terminalId": {
+            "type": "string",
+            "description": "Kênh email"
+          },
+          "message": {
+            "type": "string",
+            "description": "Nội dung email"
+          }
+        },
+        "required": [
+          "email",
+          "mailHeader",
+          "message",
+          "terminalId"
+        ]
+      },
+      "res_base": {
+        "type": "object",
+        "properties": {
+          "errCode": {
+            "type": "string",
+            "enum": [
+              "00",
+              "02",
+              "05",
+              "08",
+              "10",
+              "34",
+              "80",
+              "99"
+            ],
+            "description": "Mã lỗi"
+          },
+          "errMsg": {
+            "type": "string",
+            "description": "Diễn giải",
+            "nullable": true
+          }
+        },
+        "required": [
+          "errCode",
+          "errMsg"
+        ]
+      },
+      "req_base": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "requestTime": {
+            "type": "string",
+            "description": "Định dạng yyyyMMddHHmmss"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "IBFT_<ds>"
+          },
+          "data": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "requestId",
+          "requestTime",
+          "merchantId",
+          "data"
+        ]
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

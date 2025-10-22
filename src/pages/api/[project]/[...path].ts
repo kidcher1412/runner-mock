@@ -1,22 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@/generated/prisma";
-import { loadOpenApi, generateMock } from "@/lib/mock";
+import { loadOpenApi, generateMock, pickResponseStatus } from "@/lib/mock";
 import { OpenAPIObject, PathItemObject, ParameterObject, SchemaObject } from "openapi3-ts/oas31";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 import jp from "jsonpath";
 import path from "path";
+import { resolveToAbsolute } from "@/lib/utils";
 import { createDbHelper } from "@/helper/dbHelper";
 import { checkExpectations } from "@/helper/expectationHelper";
 
-function normalizeType(t: string | string[] | undefined): string {
-  if (!t) return "unknown";
-  return Array.isArray(t) ? t.join("|") : t;
-}
 const prisma = new PrismaClient();
 
 async function runSQLMapping(dbFile: string, sql: string, responseTemplate: any, jsonPath: string) {
-  const db = await open({ filename: dbFile, driver: sqlite3.Database });
+  const db = await open({ filename: resolveToAbsolute(dbFile), driver: sqlite3.Database });
   const rows = await db.all(sql);
   await db.close();
 
@@ -25,85 +22,52 @@ async function runSQLMapping(dbFile: string, sql: string, responseTemplate: any,
   jp.value(responseTemplate, jsonPath, rows.length === 1 ? rows[0] : rows);
   return responseTemplate;
 }
-function collectMissingFieldsFromSchema(
-  schema: SchemaObject,
-  data: any,
-  pathPrefix = "",
-  rootSpec?: OpenAPIObject,
-  missing: { field: string; type: string }[] = []
-) {
-  if (!schema) return missing;
 
-  // Resolve $ref nếu có
-  if (schema.$ref && rootSpec) {
-    const refPath = schema.$ref.replace("#/", "").split("/");
-    let ref: any = rootSpec;
-    for (const p of refPath) ref = ref?.[p];
-    if (ref) return collectMissingFieldsFromSchema(ref, data, pathPrefix, rootSpec, missing);
-  }
 
-  // Nếu là object
-  if (schema.type === "object" && schema.properties) {
-    const objData = data && typeof data === "object" ? data : {};
-    const required = schema.required || [];
-    for (const key of required) {
-      const fullPath = pathPrefix ? `${pathPrefix}.${key}` : key;
-      const propSchema = schema.properties[key] as SchemaObject;
+// ================= Processor Helper =================
 
-      if (objData[key] === undefined || objData[key] === "") {
-        const expectedType = normalizeType(propSchema?.type);
-        missing.push({ field: `Body: ${fullPath}`, type: expectedType });
-      } else {
-        // Nếu là object hoặc array lồng thì đệ quy tiếp
-        collectMissingFieldsFromSchema(propSchema, objData[key], fullPath, rootSpec, missing);
-      }
-    }
-  }
-
-  // Nếu là array
-  if (schema.type === "array" && schema.items) {
-    const arrData = Array.isArray(data) ? data : [];
-    if (arrData.length === 0 && (schema as any).minItems > 0) {
-      missing.push({ field: `Body: ${pathPrefix}`, type: "array (minItems > 0)" });
-    } else {
-      arrData.forEach((item, idx) =>
-        collectMissingFieldsFromSchema(schema.items as SchemaObject, item, `${pathPrefix}[${idx}]`, rootSpec, missing)
-      );
-    }
-  }
-
-  return missing;
-}
+import { ReferenceObject } from "openapi3-ts/oas31";
+import { collectMissingFieldsFromSchema, generateFakeDataFromSchema, normalizeType } from "@/helper/schemaHelper";
 
 // function generateFakeDataFromSchema(
-//   schema: SchemaObject,
-//   missingFields: { field: string; type: string }[] = []
+//   schema: SchemaObject | ReferenceObject,
+//   missingFields: { field: string; type: string }[] = [],
+//   rootSpec?: OpenAPIObject,
+//   depth = 0
 // ): any {
 //   if (!schema) return "string_example_return_no_schema";
-//   if (schema.type === "object" && schema.properties) {
+
+//   if ("$ref" in schema && rootSpec) {
+//     const refPath = schema.$ref!.replace(/^#\//, "").split("/");
+//     let resolved: any = rootSpec;
+//     for (const part of refPath) resolved = resolved?.[part];
+//     return generateFakeDataFromSchema(resolved, missingFields, rootSpec, depth + 1);
+//   }
+
+//   // Tới đây thì schema chắc chắn là SchemaObject
+//   const s = schema as SchemaObject;
+
+//   if (s.oneOf?.length)
+//     return generateFakeDataFromSchema(s.oneOf[0], missingFields, rootSpec, depth + 1);
+//   if (s.anyOf?.length)
+//     return generateFakeDataFromSchema(s.anyOf[0], missingFields, rootSpec, depth + 1);
+//   if (s.allOf?.length) {
+//     const merged = Object.assign({}, ...s.allOf.map(sub => 
+//       generateFakeDataFromSchema(sub, missingFields, rootSpec, depth + 1)
+//     ));
+//     return merged;
+//   }
+
+//   if (s.type === "object" && s.properties) {
 //     const obj: any = {};
-//     Object.entries(schema.properties).forEach(([key, prop]: [string, any]) => {
-//       //Trường hợp bị lỗi validate request
+//     for (const [key, prop] of Object.entries(s.properties)) {
+//       const type = Array.isArray((prop as any).type)
+//         ? (prop as any).type[0]
+//         : (prop as any).type;
 
-//       const type = Array.isArray(prop.type) ? prop.type[0] : prop.type;
-
-
-//       // if (["description", "message", "error"].includes(key) && type === "string") {
-//       //   obj[key] =
-//       //     missingFields.length > 0
-//       //       ? `Validation error. Missing: ${missingFields
-//       //         .map(m => `${m.field} (${m.type})`)
-//       //         .join(", ")}`
-//       //       : "Validation error";
-//       //   return;
-//       // }
-//       if (["statusCode", "code", "msgCode", "returnCode", "errCode"].includes(key)) {
-//         obj[key] = 400;
-//         return;
-//       }
 //       switch (type) {
 //         case "string":
-//           obj[key] = "Case_invalid_no_example";
+//           obj[key] = "string_example";
 //           break;
 //         case "number":
 //         case "integer":
@@ -113,23 +77,33 @@ function collectMissingFieldsFromSchema(
 //           obj[key] = false;
 //           break;
 //         case "array":
-//           obj[key] = [];
+//           obj[key] = [
+//             generateFakeDataFromSchema(
+//               (prop as SchemaObject).items || {},
+//               missingFields,
+//               rootSpec,
+//               depth + 1
+//             ),
+//           ];
 //           break;
 //         case "object":
-//           obj[key] = generateFakeDataFromSchema(prop, missingFields);
-//           break;
 //         default:
-//           obj[key] = null;
+//           obj[key] = generateFakeDataFromSchema(
+//             prop as SchemaObject,
+//             missingFields,
+//             rootSpec,
+//             depth + 1
+//           );
 //       }
-//     });
+//     }
 //     return obj;
 //   }
 
-//   if (schema.type === "array" && schema.items) {
-//     return [generateFakeDataFromSchema(schema.items as SchemaObject, missingFields)];
+//   if (s.type === "array" && s.items) {
+//     return [generateFakeDataFromSchema(s.items, missingFields, rootSpec, depth + 1)];
 //   }
 
-//   switch (schema.type) {
+//   switch (s.type) {
 //     case "string":
 //       return "string_example";
 //     case "number":
@@ -142,97 +116,6 @@ function collectMissingFieldsFromSchema(
 //   }
 // }
 
-// ================= Processor Helper =================
-
-import { ReferenceObject } from "openapi3-ts/oas31";
-
-function generateFakeDataFromSchema(
-  schema: SchemaObject | ReferenceObject,
-  missingFields: { field: string; type: string }[] = [],
-  rootSpec?: OpenAPIObject,
-  depth = 0
-): any {
-  if (!schema) return "string_example_return_no_schema";
-
-  if ("$ref" in schema && rootSpec) {
-    const refPath = schema.$ref!.replace(/^#\//, "").split("/");
-    let resolved: any = rootSpec;
-    for (const part of refPath) resolved = resolved?.[part];
-    return generateFakeDataFromSchema(resolved, missingFields, rootSpec, depth + 1);
-  }
-
-  // Tới đây thì schema chắc chắn là SchemaObject
-  const s = schema as SchemaObject;
-
-  if (s.oneOf?.length)
-    return generateFakeDataFromSchema(s.oneOf[0], missingFields, rootSpec, depth + 1);
-  if (s.anyOf?.length)
-    return generateFakeDataFromSchema(s.anyOf[0], missingFields, rootSpec, depth + 1);
-  if (s.allOf?.length) {
-    const merged = Object.assign({}, ...s.allOf.map(sub => 
-      generateFakeDataFromSchema(sub, missingFields, rootSpec, depth + 1)
-    ));
-    return merged;
-  }
-
-  if (s.type === "object" && s.properties) {
-    const obj: any = {};
-    for (const [key, prop] of Object.entries(s.properties)) {
-      const type = Array.isArray((prop as any).type)
-        ? (prop as any).type[0]
-        : (prop as any).type;
-
-      switch (type) {
-        case "string":
-          obj[key] = "string_example";
-          break;
-        case "number":
-        case "integer":
-          obj[key] = 0;
-          break;
-        case "boolean":
-          obj[key] = false;
-          break;
-        case "array":
-          obj[key] = [
-            generateFakeDataFromSchema(
-              (prop as SchemaObject).items || {},
-              missingFields,
-              rootSpec,
-              depth + 1
-            ),
-          ];
-          break;
-        case "object":
-        default:
-          obj[key] = generateFakeDataFromSchema(
-            prop as SchemaObject,
-            missingFields,
-            rootSpec,
-            depth + 1
-          );
-      }
-    }
-    return obj;
-  }
-
-  if (s.type === "array" && s.items) {
-    return [generateFakeDataFromSchema(s.items, missingFields, rootSpec, depth + 1)];
-  }
-
-  switch (s.type) {
-    case "string":
-      return "string_example";
-    case "number":
-    case "integer":
-      return 0;
-    case "boolean":
-      return false;
-    default:
-      return null;
-  }
-}
-
 
 
 async function loadProcessors(project: string, endpoint: string, method: string) {
@@ -243,7 +126,6 @@ async function loadProcessors(project: string, endpoint: string, method: string)
     `SELECT * FROM processors WHERE project=? AND endpoint=? AND method=? and enabled = 1 ORDER BY id ASC`,
     [project, endpoint, method]
   );
-  console.log(rows);
   await db.close();
   return rows;
 }
@@ -401,7 +283,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(expectations)
     if (expectations.length > 0) {
       const { matched, logs } = await checkExpectations(req, res, expectations);
-      if (matched) return; // đã trả response ở trong hàm rồi
+      if (matched) return; // đã trả response ở trong hàm rồi (đã set Content-Type theo expectation)
     }
 
     // chạy pre
@@ -416,6 +298,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(500).json({ error: `Pre processor error: ${e.message}`, logs });
       }
     }
+
+// //-------------------- Example (200/201/202 ưu tiên) ----------------------
+  const desiredStatus = String(req.headers["x-mock-status"] ?? req.query.__status ?? "");
+  const { status: chosenStatus, contentJson: chosenContent, schema: chosenSchema } =
+    pickResponseStatus(operation, desiredStatus || undefined);
+
+  let exampleReturn: any = undefined;
+  if (chosenContent) {
+    // Ưu tiên examples[name] nếu được chỉ định __example/x-mock-example
+    const exampleName = String(req.headers["x-mock-example"] ?? req.query.__example ?? "");
+    if (exampleName && chosenContent.examples?.[exampleName]?.value !== undefined) {
+      exampleReturn = chosenContent.examples[exampleName].value;
+    } else if (chosenContent.examples) {
+      const firstKey = Object.keys(chosenContent.examples)[0];
+      if (firstKey) exampleReturn = chosenContent.examples[firstKey].value;
+    } else if (chosenContent.example !== undefined) {
+      exampleReturn = chosenContent.example;
+    }
+  }
+  // Nếu spec có example → trả theo status đã chọn
+  if (exampleReturn !== undefined) {
+    return res.status(Number(chosenStatus)).json(exampleReturn);
+  }
+
 
     //-------------------- Example----------------------
     const schema200 = operation.responses?.["200"]?.content?.["application/json"]?.schema as SchemaObject;
@@ -439,7 +345,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // ------------------- Mock data -------------------
-    let mockData = generateMock(operation.responses?.["200"]?.content?.["application/json"]?.schema);
+    let mockData = generateMock(
+      operation.responses?.["200"]?.content?.["application/json"]?.schema,
+      api // <== truyền rootSpec để deref $ref
+    );
     if (proj.useDB && proj.dbFile) {
       const mapping = await prisma.mapping.findUnique({
         where: { endpoint_method: { endpoint: pathKey, method } },

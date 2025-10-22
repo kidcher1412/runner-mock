@@ -73,7 +73,7 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
+      <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
         Đang tải dữ liệu dự án...
       </div>
     );
@@ -81,14 +81,14 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full text-red-600">
+      <div className="flex items-center justify-center h-full text-red-600 dark:text-red-400">
         Lỗi: {error}
       </div>
     );
   }
 
   return (
-    <div className="relative h-screen overflow-hidden bg-gray-50">
+    <div className="relative h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 {/* MAIN PROCESSOR AREA */}
 <div
   className={`transition-all duration-300 h-full ${
@@ -122,7 +122,7 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
       {/* DB SLIDE PANEL */}
       {!dbDisabled && (
         <div
-          className={`absolute top-0 right-0 h-full w-[400px] bg-white border-l shadow-xl transition-transform duration-300 z-30 ${
+          className={`absolute top-0 right-0 h-full w-[400px] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-xl transition-transform duration-300 z-30 ${
             showDbPanel ? "translate-x-0" : "translate-x-full"
           }`}
         >
@@ -136,10 +136,10 @@ export default function ProjectEndpointMapping({ projectName }: ProjectEndpointM
       {dbDisabled && (
         <div className="absolute inset-0 bg-gray-200 bg-opacity-70 flex flex-col items-center justify-center backdrop-blur-sm rounded-lg">
           <div className="text-center">
-            <p className="text-lg font-semibold text-gray-700">
+            <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
               Dự án này không bật <span className="font-bold text-blue-600">DB Mode</span>
             </p>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Các tính năng sử dụng cơ sở dữ liệu tạm thời bị vô hiệu hóa.
             </p>
           </div>

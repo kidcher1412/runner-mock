@@ -30,17 +30,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const useDBStr = Array.isArray(useDBRaw) ? useDBRaw[0] : useDBRaw;
     const useDB = useDBStr === "true";
 
-    const newFilePath = path.join(process.cwd(), "mock-data", `${projectName}.json`);
-    fs.renameSync(file.filepath, newFilePath);
+    const absJsonPath = path.join(process.cwd(), "mock-data", `${projectName}.json`);
+    fs.renameSync(file.filepath, absJsonPath);
 
     try {
       const existing = await prisma.project.findUnique({ where: { name: projectName } });
       if (existing) return res.status(400).json({ error: "Project already exists" });
 
-      let dbFilePath: string | null = null;
+      let absDbPath: string | null = null;
       if (useDB) {
-        dbFilePath = path.join(process.cwd(), "mock-data", `${projectName}.sqlite`);
-        const db = await open({ filename: dbFilePath, driver: sqlite3.Database });
+        absDbPath = path.join(process.cwd(), "mock-data", `${projectName}.sqlite`);
+        const db = await open({ filename: absDbPath, driver: sqlite3.Database });
     // 🧱 Tạo bảng mock_data (dữ liệu mẫu)
     await db.exec(`
       CREATE TABLE IF NOT EXISTS mock_data (
@@ -67,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const project = await prisma.project.create({
-        data: { name: projectName, file: newFilePath, useDB, dbFile: dbFilePath || undefined },
+        data: { name: projectName, file: `./mock-data/${projectName}.json`, useDB, dbFile: absDbPath ? `./mock-data/${projectName}.sqlite` : undefined },
       });
 
       res.status(200).json({ message: "Project uploaded", project });

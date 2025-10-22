@@ -46,40 +46,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "jobId": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "row1": {
-                          "type": "string"
-                        },
-                        "row2": {
-                          "type": "number"
-                        },
-                        "row3": {
-                          "type": "boolean"
-                        }
-                      },
-                      "required": [
-                        "row1",
-                        "row2",
-                        "row3"
-                      ],
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "message",
-                    "jobId",
-                    "data"
-                  ]
+                  "$ref": "#/components/schemas/test_res"
                 }
               }
             },
@@ -302,7 +269,47 @@
     }
   },
   "components": {
-    "schemas": {},
+    "schemas": {
+      "test_res": {
+        "type": "object",
+        "properties": {
+          "test1": {
+            "type": "string",
+            "nullable": true
+          },
+          "test2": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto_1"
+            },
+            "nullable": true
+          },
+          "test3": {
+            "$ref": "#/components/schemas/dto_1"
+          }
+        },
+        "required": [
+          "test1",
+          "test2",
+          "test3"
+        ]
+      },
+      "dto_1": {
+        "type": "object",
+        "properties": {
+          "row1": {
+            "type": "string"
+          },
+          "row2": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row1",
+          "row2"
+        ]
+      }
+    },
     "securitySchemes": {}
   },
   "servers": [],

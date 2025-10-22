@@ -33,7 +33,7 @@ export default function ExpectationForm({
   readOnly?: boolean;
 }) {
   if (!value) {
-    return <div className="text-gray-500 italic">Đang tải dữ liệu Expectation...</div>;
+    return <div className="text-gray-500 dark:text-gray-400 italic">Đang tải dữ liệu Expectation...</div>;
   }
   const [nextLogic, setNextLogic] = useState<"AND" | "OR">("AND");
 
@@ -80,7 +80,7 @@ export default function ExpectationForm({
       .join(" ");
 
   return (
-    <div className="border rounded p-3 bg-gray-50 text-xs">
+    <div className="border border-gray-200 dark:border-gray-800 rounded p-3 bg-gray-50 dark:bg-gray-900 text-xs text-gray-900 dark:text-gray-100">
       {/* 🧩 Tên Expectation */}
       <h3 className="font-semibold mb-2">🧩 Tên Expectation</h3>
       <input
@@ -88,7 +88,7 @@ export default function ExpectationForm({
         placeholder="Tên Expectation"
         value={value.name}
         onChange={(e) => onChange({ ...value, name: e.target.value })}
-        className="border p-1 rounded w-full mb-2"
+        className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded w-full mb-2"
       />
 
       {/* 🔧 Điều kiện */}
@@ -97,7 +97,7 @@ export default function ExpectationForm({
       {value.conditions.map((cond, i) => (
         <div
           key={i}
-          className="border rounded p-2 mb-2 bg-white grid grid-cols-6 gap-2 items-center"
+          className="border border-gray-200 dark:border-gray-800 rounded p-2 mb-2 bg-white dark:bg-gray-950 grid grid-cols-6 gap-2 items-center"
         >
           <div className="flex flex-col items-center">
             <label className="text-[10px]">Mở (</label>
@@ -120,7 +120,7 @@ export default function ExpectationForm({
             disabled={readOnly}
             value={cond.location}
             onChange={(e) => updateCondition(i, "location", e.target.value)}
-            className="border p-1 rounded"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded"
           >
             <option value="">-- Vị trí --</option>
             <option value="headers">Headers</option>
@@ -133,14 +133,14 @@ export default function ExpectationForm({
             placeholder="Field"
             value={cond.field}
             onChange={(e) => updateCondition(i, "field", e.target.value)}
-            className="border p-1 rounded"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded"
           />
 
           <select
             disabled={readOnly}
             value={cond.comparison}
             onChange={(e) => updateCondition(i, "comparison", e.target.value)}
-            className="border p-1 rounded"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded"
           >
             <option value="">-- Chọn phép so sánh --</option>
             <option value="equals">Bằng (=)</option>
@@ -163,7 +163,7 @@ export default function ExpectationForm({
             onChange={(e) =>
               updateCondition(i, "expectedValue", e.target.value)
             }
-            className="border p-1 rounded"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded"
           />
 
           {!readOnly && (
@@ -189,7 +189,7 @@ export default function ExpectationForm({
           <select
             value={nextLogic}
             onChange={(e) => setNextLogic(e.target.value as "AND" | "OR")}
-            className="border p-1 rounded text-xs"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded text-xs"
           >
             <option value="AND">Liên kết bằng AND</option>
             <option value="OR">Liên kết bằng OR</option>
@@ -197,11 +197,11 @@ export default function ExpectationForm({
         </div>
       )}
 
-      <div className="border-t pt-3 mb-2">
-        <h3 className="font-medium mb-2 text-sm text-gray-700">
+      <div className="border-t border-gray-200 dark:border-gray-800 pt-3 mb-2">
+        <h3 className="font-medium mb-2 text-sm text-gray-700 dark:text-gray-300">
           🔍 Preview Logic:
         </h3>
-        <div className="bg-gray-100 p-3 rounded font-mono text-sm text-gray-800">
+        <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded font-mono text-sm text-gray-800 dark:text-gray-100">
           {renderPreview()}
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function ExpectationForm({
       {/* ⚙️ HTTP Status + ContentType */}
       <div className="flex flex-wrap gap-3">
         <div className="mb-3 w-full md:w-1/2">
-          <h3 className="font-semibold mb-1 text-sm text-gray-700">
+          <h3 className="font-semibold mb-1 text-sm text-gray-700 dark:text-gray-300">
             ⚠️ HTTP Status Code
           </h3>
           <input
@@ -221,7 +221,7 @@ export default function ExpectationForm({
             onChange={(e) =>
               onChange({ ...value, mockResponseStatus: e.target.value })
             }
-            className="border p-1 rounded w-full"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded w-full"
           />
           <datalist id="statusList">
             {httpStatusCodes.map((s) => (
@@ -233,7 +233,7 @@ export default function ExpectationForm({
         </div>
 
         <div className="mb-3 w-full md:w-1/2">
-          <h3 className="font-semibold mb-1 text-sm text-gray-700">
+          <h3 className="font-semibold mb-1 text-sm text-gray-700 dark:text-gray-300">
             📦 Kiểu dữ liệu trả về
           </h3>
           <select
@@ -242,7 +242,7 @@ export default function ExpectationForm({
             onChange={(e) =>
               onChange({ ...value, contentType: e.target.value })
             }
-            className="border p-1 rounded w-full"
+            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 rounded w-full"
           >
             <option value="application/json">application/json</option>
             <option value="text/plain">text/plain</option>
@@ -254,7 +254,7 @@ export default function ExpectationForm({
 
       {/* Mock response */}
       <div className="mb-3">
-        <h3 className="font-semibold mb-1 text-sm text-gray-700">
+        <h3 className="font-semibold mb-1 text-sm text-gray-700 dark:text-gray-300">
           🧾 Mock Response Data
         </h3>
         <textarea
@@ -264,7 +264,7 @@ export default function ExpectationForm({
           onChange={(e) =>
             onChange({ ...value, mockResponse: e.target.value })
           }
-          className="border p-2 rounded w-full font-mono text-xs"
+          className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 rounded w-full font-mono text-xs"
         />
       </div>
     </div>

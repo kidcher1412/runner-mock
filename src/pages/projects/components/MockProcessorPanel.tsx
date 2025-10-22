@@ -401,13 +401,13 @@ export default function MockProcessorPanel({
 
     return (
         <>
-            <div className="border rounded p-4 bg-white flex flex-col overflow-y-auto">
+            <div className="border border-gray-200 dark:border-gray-800 rounded p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col overflow-y-auto">
                 <h2 className="text-lg font-bold mb-4">Processor Management</h2>
 
                 <select
                     value={selectedEndpoint ? `${selectedEndpoint.path}|${selectedEndpoint.method}` : ""}
                     onChange={(e) => selectEndpoint(e.target.value)}
-                    className="border p-2 rounded mb-3"
+                    className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 rounded mb-3"
                 >
                     <option value="">-- Chọn Endpoint --</option>
                     {Array.isArray(endpoints) && endpoints.map((ep) => (
@@ -421,15 +421,15 @@ export default function MockProcessorPanel({
                     <>
                         {/* Trạng thái chế độ */}
                         <div className="flex justify-between items-center mb-3">
-                            <span className={`font-semibold ${expectMode ? "text-pink-600" : "text-blue-600"}`}>
+                            <span className={`font-semibold ${expectMode ? "text-pink-400" : "text-blue-400"}`}>
                                 {expectMode ? "🧪 Expect Mode đang chạy" : "⚙️ Process Mode đang chạy"}
                             </span>
                             <button
                                 onClick={toggleExpectMode}
                                 disabled={loadingMode}
                                 className={`px-3 py-1 rounded text-sm ${expectMode
-                                    ? "bg-blue-100 hover:bg-blue-200"
-                                    : "bg-pink-100 hover:bg-pink-200"
+                                    ? "bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-200"
+                                    : "bg-pink-100 dark:bg-pink-900/30 hover:bg-pink-200 dark:hover:bg-pink-900/50 text-pink-700 dark:text-pink-200"
                                     }`}
                             >
                                 {expectMode ? "Tắt Expect Mode" : "Bật Expect Mode"}
@@ -447,7 +447,7 @@ export default function MockProcessorPanel({
                                         ? tab === "expectation"
                                             ? "bg-pink-500 text-white"
                                             : "bg-blue-600 text-white"
-                                        : "bg-gray-200 hover:bg-gray-300"
+                                        : "bg-gray-200 dark:bg-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700"
                                         } ${expectMode && tab !== "expectation" ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
                                     {tab === "pre"
@@ -466,7 +466,7 @@ export default function MockProcessorPanel({
                                     placeholder={`Nhập code cho ${activeTab}`}
                                     value={newCode}
                                     onChange={(e) => setNewCode(e.target.value)}
-                                    className="border p-2 rounded w-full mb-2 h-20 text-xs font-mono"
+                                    className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 rounded w-full mb-2 h-20 text-xs font-mono"
                                 />
                                 <button
                                     className="bg-purple-500 hover:bg-purple-600 text-white font-semibold p-2 rounded mb-4"
@@ -530,13 +530,13 @@ export default function MockProcessorPanel({
                         </div>
 
                         {showConfig && (
-                            <div className="border rounded p-2 mb-3 bg-gray-50 text-xs">
+                            <div className="border border-gray-200 dark:border-gray-800 rounded p-2 mb-3 bg-gray-50 dark:bg-gray-950 text-xs text-gray-900 dark:text-gray-100">
                                 <div className="flex gap-2 mb-2">
                                     {["headers", "params", "body"].map((tab) => (
                                         <button
                                             key={tab}
                                             onClick={() => setConfigTab(tab as any)}
-                                            className={`px-2 py-1 rounded text-xs ${configTab === tab ? "bg-blue-500 text-white" : "bg-gray-200"
+                                            className={`px-2 py-1 rounded text-xs ${configTab === tab ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
                                                 }`}
                                         >
                                             {tab.toUpperCase()}
@@ -548,7 +548,7 @@ export default function MockProcessorPanel({
                                     <textarea
                                         value={httpBody}
                                         onChange={(e) => setHttpBody(e.target.value)}
-                                        className="border p-2 rounded w-full h-24 font-mono text-xs"
+                                        className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 rounded w-full h-24 font-mono text-xs"
                                     />
                                 ) : (
                                     <div>
@@ -562,7 +562,7 @@ export default function MockProcessorPanel({
                                                         arr[i].key = e.target.value;
                                                         configTab === "headers" ? setHttpHeaders(arr) : setHttpParams(arr);
                                                     }}
-                                                    className="border p-1 flex-1 rounded"
+                                                    className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 flex-1 rounded"
                                                 />
                                                 <input
                                                     placeholder="Value"
@@ -572,7 +572,7 @@ export default function MockProcessorPanel({
                                                         arr[i].value = e.target.value;
                                                         configTab === "headers" ? setHttpHeaders(arr) : setHttpParams(arr);
                                                     }}
-                                                    className="border p-1 flex-1 rounded"
+                                                    className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-1 flex-1 rounded"
                                                 />
                                                 <button
                                                     onClick={() =>
@@ -586,7 +586,7 @@ export default function MockProcessorPanel({
                                         ))}
                                         <button
                                             onClick={configTab === "headers" ? addHeader : addParam}
-                                            className="mt-1 text-blue-600 text-xs hover:underline"
+                                            className="mt-1 text-blue-600 dark:text-blue-400 text-xs hover:underline"
                                         >
                                             ➕ Thêm {configTab === "headers" ? "Header" : "Param"}
                                         </button>
@@ -604,7 +604,7 @@ export default function MockProcessorPanel({
                             }}
                         />}
                         {showConsole && (
-                            <div className="mt-2 border rounded bg-black text-green-400 p-2 text-xs font-mono h-32 overflow-auto">
+                            <div className="mt-2 border border-gray-700 rounded bg-black text-green-400 p-2 text-xs font-mono h-32 overflow-auto">
                                 {Array.isArray(consoleOutput) && consoleOutput.map((line, i) => (
                                     <div key={i}>{line}</div>
                                 ))}
@@ -612,30 +612,30 @@ export default function MockProcessorPanel({
                         )}
 
                         {/* Table */}
-                        <table className="w-full border text-xs mt-4">
-                            <thead className="bg-gray-100">
+                        <table className="w-full border border-gray-200 dark:border-gray-800 text-xs mt-4">
+                            <thead className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                                 <tr>
-                                    <th className="p-2 border">ID</th>
-                                    <th className="p-2 border">Name</th>
-                                    <th className="p-2 border">Enabled</th>
-                                    <th className="p-2 border">Created</th>
-                                    <th className="p-2 border">Actions</th>
+                                    <th className="p-2 border border-gray-200 dark:border-gray-800">ID</th>
+                                    <th className="p-2 border border-gray-200 dark:border-gray-800">Name</th>
+                                    <th className="p-2 border border-gray-200 dark:border-gray-800">Enabled</th>
+                                    <th className="p-2 border border-gray-200 dark:border-gray-800">Created</th>
+                                    <th className="p-2 border border-gray-200 dark:border-gray-800">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {Array.isArray(processors) && processors
                                     .filter((p) => p.type === activeTab)
                                     .map((p) => (
-                                        <tr key={p.id} className="hover:bg-gray-50">
-                                            <td className="p-2 border text-center">{p.id}</td>
-                                            <td className="p-2 border text-center">{JSON.parse(p.code).name ?? "Lỗi parse"}</td>
-                                            <td className="p-2 border text-center">{p.enabled ? "✅" : "❌"}</td>
-                                            <td className="p-2 border text-center text-gray-500">
+                                        <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                            <td className="p-2 border border-gray-200 dark:border-gray-800 text-center">{p.id}</td>
+                                            <td className="p-2 border border-gray-200 dark:border-gray-800 text-center">{JSON.parse(p.code).name ?? "Lỗi parse"}</td>
+                                            <td className="p-2 border border-gray-200 dark:border-gray-800 text-center">{p.enabled ? "✅" : "❌"}</td>
+                                            <td className="p-2 border border-gray-200 dark:border-gray-800 text-center text-gray-500 dark:text-gray-400">
                                                 {p.created_at || ""}
                                             </td>
                                             <td className="p-2 border text-center">
                                                 <button
-                                                    className="text-blue-600 hover:underline"
+                                                    className="text-blue-600 dark:text-blue-400 hover:underline"
                                                     onClick={() => openModal(p)}
                                                 >
                                                     Xem
@@ -648,8 +648,8 @@ export default function MockProcessorPanel({
 
                         {/* Modal */}
                         {showModal && selectedProcessor && (
-                            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                                <div className="bg-white rounded-lg p-4 w-[600px] shadow-lg max-h-[90vh] overflow-y-auto">
+                            <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+                                <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-800 rounded-lg p-4 w-[600px] shadow-lg max-h-[90vh] overflow-y-auto">
                                     <h3 className="text-lg font-semibold mb-2">
                                         {activeTab === "expectation"
                                             ? `Expectation #${selectedProcessor.id}`
@@ -696,14 +696,14 @@ export default function MockProcessorPanel({
                                         <textarea
                                             value={editCode}
                                             onChange={(e) => setEditCode(e.target.value)}
-                                            className="border p-2 rounded w-full h-48 text-xs font-mono mb-3"
+                                            className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-2 rounded w-full h-48 text-xs font-mono mb-3"
                                         />
                                     )}
 
                                     <div className="flex justify-between mt-3">
                                         <button
                                             onClick={() => setShowModal(false)}
-                                            className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                                            className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
                                         >
                                             Đóng
                                         </button>

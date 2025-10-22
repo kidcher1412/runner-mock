@@ -27,26 +27,26 @@ export default function GlobalNav() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 20, stiffness: 120 }}
-            className="bg-white border-t shadow-lg w-full max-w-md rounded-t-2xl overflow-hidden"
+            className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-lg w-full max-w-md rounded-t-2xl overflow-hidden"
           >
-            <div className="flex justify-around py-4 text-gray-700">
-              <Link href="/" className="flex flex-col items-center hover:text-blue-600 transition">
+            <div className="flex justify-around py-4 text-gray-700 dark:text-gray-200">
+              <Link href="/" className="flex flex-col items-center hover:text-blue-600 dark:hover:text-blue-400 transition">
                 <Home className="h-6 w-6" />
                 <span className="text-xs mt-1">Trang chủ</span>
               </Link>
-              <Link href="/projects/upload/list" className="flex flex-col items-center hover:text-blue-600 transition">
+              <Link href="/projects/upload/list" className="flex flex-col items-center hover:text-blue-600 dark:hover:text-blue-400 transition">
                 <FolderOpen className="h-6 w-6" />
                 <span className="text-xs mt-1">Dự án</span>
               </Link>
-              <Link href="/projects/browser" className="flex flex-col items-center hover:text-blue-600 transition">
+              <Link href="/projects/browser" className="flex flex-col items-center hover:text-blue-600 dark:hover:text-blue-400 transition">
                 <DatabaseZap className="h-6 w-6" />
                 <span className="text-xs mt-1">Mock dữ liệu</span>
               </Link>
-              <Link href="/projects/upload" className="flex flex-col items-center hover:text-blue-600 transition">
+              <Link href="/projects/upload" className="flex flex-col items-center hover:text-blue-600 dark:hover:text-blue-400 transition">
                 <DatabaseZap className="h-6 w-6" />
                 <span className="text-xs mt-1">Tạo dự án</span>
               </Link>
-              <Link href="/settings" className="flex flex-col items-center hover:text-blue-600 transition">
+              <Link href="/settings" className="flex flex-col items-center hover:text-blue-600 dark:hover:text-blue-400 transition">
                 <Settings className="h-6 w-6" />
                 <span className="text-xs mt-1">Cài đặt</span>
               </Link>

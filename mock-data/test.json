@@ -1,0 +1,326 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Default module",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/test-func": {
+      "post": {
+        "summary": "test-func",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "input",
+                  "name"
+                ]
+              },
+              "example": {
+                "input": "6d5e676a-810f-4ac7-a97f-60dd96de4b4d",
+                "name": "Brian Williamson"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/test_res"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "jobId": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "row1": {
+                          "type": "string"
+                        },
+                        "row2": {
+                          "type": "number"
+                        },
+                        "row3": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "row1",
+                        "row2",
+                        "row3"
+                      ],
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "jobId",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "message": "Sol caput aiunt cervus adulatio credo. Acidus dolor thalassinus utilis victoria. Altus deporto mollitia ubi pauper volva.",
+                  "jobId": "47",
+                  "data": {
+                    "row1": "aliqua in minim enim culpa",
+                    "row2": 82051346.06492731,
+                    "row3": true
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "get": {
+        "summary": "test-func",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "message",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "root",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "example": "test"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/test-header": {
+      "post": {
+        "summary": "test_header",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "test",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "check",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "test": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "test": {
+                      "type": "string"
+                    },
+                    "check": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "test",
+                    "check"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "test_res": {
+        "type": "object",
+        "properties": {
+          "test1": {
+            "type": "string",
+            "nullable": true
+          },
+          "test2": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/dto_1"
+            },
+            "nullable": true
+          },
+          "test3": {
+            "$ref": "#/components/schemas/dto_1"
+          }
+        },
+        "required": [
+          "test1",
+          "test2",
+          "test3"
+        ]
+      },
+      "dto_1": {
+        "type": "object",
+        "properties": {
+          "row1": {
+            "type": "string",
+            "enum": [
+              "N",
+              "Y"
+            ]
+          },
+          "row2": {
+            "type": "integer"
+          },
+          "row3": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "row1",
+          "row2",
+          "row3"
+        ]
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

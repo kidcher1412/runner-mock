@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
+import { resolveToAbsolute } from "@/lib/utils";
 import { PrismaClient } from "@/generated/prisma";
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
@@ -22,8 +23,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         let pre = 0, post = 0, expect = 0;
 
         // Đếm số endpoint trong JSON
-        if (fs.existsSync(p.file)) {
-          const raw = fs.readFileSync(p.file, "utf-8");
+        const absJson = resolveToAbsolute(p.file);
+        if (absJson && fs.existsSync(absJson)) {
+          const raw = fs.readFileSync(absJson, "utf-8");
           try {
             const json = JSON.parse(raw);
             endpoints = Object.keys(json.paths || {}).length;
@@ -31,11 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // Nếu có DB thì đếm processors
-        if (p.useDB && p.dbFile && fs.existsSync(p.dbFile)) {
+        const absDb = resolveToAbsolute(p.dbFile);
+        if (p.useDB && absDb && fs.existsSync(absDb)) {
           let db: Database<sqlite3.Database, sqlite3.Statement> | null = null;
           try {
             db = await open({
-              filename: p.dbFile, // ✅ đúng property name
+              filename: absDb, // ✅ resolved path
               driver: sqlite3.Database, // ✅ đúng driver type
             });
 

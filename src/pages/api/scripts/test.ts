@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import sqlite3 from "sqlite3";
 import path from "path";
+import { resolveToAbsolute } from "@/lib/utils";
 
 function getDbPath(project: string) {
-  return path.join(process.cwd(), "mock-data", `${project}.sqlite`);
+  return resolveToAbsolute(`./mock-data/${project}.sqlite`);
 }
 
 function runQuery(dbPath: string, sql: string, params: any[] = []): Promise<any[]> {
